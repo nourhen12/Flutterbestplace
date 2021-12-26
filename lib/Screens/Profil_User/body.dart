@@ -16,39 +16,48 @@ class _ProfilePageState extends State<Body> {
   @override
   Widget build(BuildContext context) {
     UserController _controller = Get.put(UserController());
-    User user = _controller.userController;
-    String avaterapi = user.avatar;
-
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
     return ListView(
       physics: BouncingScrollPhysics(),
       children: [
-        PhotoProfile(
-          imagePath:
-              "https://bestpkace-api.herokuapp.com/uploadsavatar1/$avaterapi",
-          onClicked: () async {
-            Get.toNamed('/editprofil');
-          },
+        Obx(
+              () => PhotoProfile(
+            imagePath:
+            "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.avatar}",
+            onClicked: () async {
+              Get.toNamed('/editprofil');
+            },
+          ),
         ),
         const SizedBox(height: 24),
-        buildName(user),
-        const SizedBox(height: 24),
-        // Center(child:buildRating()),
+        Obx(
+              () => buildName(_controller.userController.value),
+        ),
         //const SizedBox(height: 24),
-        Center(
+        //Center(child: buildRating()),
+        //const SizedBox(height: 24),
+        /* Center(
             child: ButtonWidget(
           text: 'Upgrade To Profile',
           onClicked: () {
             Get.toNamed('/image');
           },
-        )),
+        )),*/
         const SizedBox(height: 24),
-        NumbersWidget(),
+        Obx(
+              () => NumbersWidget(
+            Following: _controller.userController.value.following,
+            Followers: _controller.userController.value.followers,
+            idCurret: _controller.idController,
+            iduser: "61b6821a8a3ffd0023dc6323",
+          ),
+        ),
         SizedBox(
           height: 30,
         ),
+
         Container(
           height: height * 0.5,
           width: width,
@@ -101,32 +110,44 @@ class _ProfilePageState extends State<Body> {
   }
 
   Widget buildName(User user) => Column(
-        children: [
-          Text(
-            user.fullname,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            user.email,
+    children: [
+      Text(
+        user.fullname,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        user.email,
+        style: TextStyle(color: Colors.grey),
+      ),
+      /* Text(
+            user.phone,
             style: TextStyle(color: Colors.grey),
-          )
-        ],
-      );
+          ),
+          Text(
+            user.ville,
+            style: TextStyle(color: Colors.grey),
+          ),
+          Text(
+            user.adresse,
+            style: TextStyle(color: Colors.grey),
+          )*/
+    ],
+  );
 
   Widget buildRating() => RatingBar.builder(
-        initialRating: 2.5,
-        minRating: 1,
-        direction: Axis.horizontal,
-        allowHalfRating: true,
-        itemCount: 5,
-        itemPadding: EdgeInsets.symmetric(horizontal: 3.0),
-        itemBuilder: (context, _) => Icon(
-          Icons.star,
-          color: Colors.amber,
-        ),
-        onRatingUpdate: (rating) {
-          print(rating);
-        },
-      );
+    initialRating: 2.5,
+    minRating: 1,
+    direction: Axis.horizontal,
+    allowHalfRating: true,
+    itemCount: 5,
+    itemPadding: EdgeInsets.symmetric(horizontal: 3.0),
+    itemBuilder: (context, _) => Icon(
+      Icons.star,
+      color: Colors.amber,
+    ),
+    onRatingUpdate: (rating) {
+      print(rating);
+    },
+  );
 }

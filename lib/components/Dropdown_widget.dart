@@ -22,7 +22,7 @@ class DropdownWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFieldContainer(
-      nb: 0.2,
+      nb: 0.8,
       child: DropdownButtonFormField<String>(
         value: valueSelect,
         hint: HintText,

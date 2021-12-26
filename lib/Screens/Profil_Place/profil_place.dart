@@ -7,7 +7,7 @@ class ProfilPlace extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: Body(),
+      body: ProfilePage(),
     );
   }
 }

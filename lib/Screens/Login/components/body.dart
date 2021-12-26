@@ -7,7 +7,8 @@ import 'package:flutterbestplace/components/rounded_password_field.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutterbestplace/models/user.dart';
 import 'package:flutterbestplace/Controllers/user_controller.dart';
-import 'package:flutterbestplace/services/user_api.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutterbestplace/models/Data.dart';
 import 'package:get/get.dart';
 
 class Body extends StatelessWidget {
@@ -15,7 +16,7 @@ class Body extends StatelessWidget {
   var psw;
   User user = User();
   final _formKey = GlobalKey<FormState>();
-  UserController _userController = Get.put(UserController());
+  UserController _controller = Get.put(UserController());
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -38,6 +39,7 @@ class Body extends StatelessWidget {
               SizedBox(height: size.height * 0.03),
               RoundedInputField(
                 hintText: "Your Email",
+                icon: Icons.email,
                 onChanged: (value) {
                   mail = value;
                 },
@@ -66,10 +68,32 @@ class Body extends StatelessWidget {
               ),
               RoundedButton(
                 text: "LOGIN",
-                press: () {
+                press: () async {
                   var fromdata = _formKey.currentState;
                   if (fromdata.validate()) {
-                    _userController.login(mail, psw);
+                    fromdata.save();
+                    Data data = await _controller.login(mail, psw);
+                    if (data.status == 'failed') {
+                      AwesomeDialog(
+                          context: context,
+                          dialogType: DialogType.ERROR,
+                          animType: AnimType.RIGHSLIDE,
+                          headerAnimationLoop: true,
+                          title: 'Error',
+                          desc: data.message,
+                          btnOkOnPress: () {},
+                          btnOkIcon: Icons.cancel,
+                          btnOkColor: Colors.red)
+                        ..show();
+                    } else {
+                      Map<String, dynamic> user = data.payload['user'];
+                      _controller.userController = User.fromJson(user).obs;
+                      _controller.idController = user['_id'];
+                      print(_controller.userController);
+                      //_controller.change(_controller.userController);
+                      print(_controller.idController);
+                      Get.toNamed('/profilPlace');
+                    }
                   } else {
                     print("notvalid");
                   }
@@ -86,30 +110,6 @@ class Body extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  showAlertDialog(String message) {
-    // set up the button
-    Widget okButton = FlatButton(
-      child: Text("OK"),
-      onPressed: () {},
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("ERROR"),
-      content: Text(message),
-      actions: [
-        okButton,
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      builder: (BuildContext context) {
-        return alert;
-      },
     );
   }
 }
