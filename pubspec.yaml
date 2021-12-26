@@ -54,6 +54,9 @@ dependencies:
   geolocator: ^7.7.1
   geolocator_web: ^2.0.6
   awesome_dialog: ^2.1.1
+  convert: ^2.1.1
+  google_sign_in: ^5.2.1
+  socket_io_client: ^1.0.2
 
 
 dev_dependencies:

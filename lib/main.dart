@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterbestplace/chat_screen.dart';
 import 'package:flutterbestplace/Screens/Welcome/welcome_screen.dart';
 import 'package:flutterbestplace/constants.dart';
 import 'package:flutterbestplace/Screens/Signup/signup_screen.dart';
@@ -8,6 +9,7 @@ import 'package:flutterbestplace/Screens/Profil_User/profil_screen.dart';
 import 'package:flutterbestplace/Screens/EditProfil/edit_profil.dart';
 import 'package:flutterbestplace/Screens/Profil_Place/profil_place.dart';
 import 'package:flutterbestplace/Screens/google_map/map.dart';
+import 'package:flutterbestplace/home.dart';
 import 'package:get/get.dart';
 
 
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+   return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Auth',
       theme: ThemeData(

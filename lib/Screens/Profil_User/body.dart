@@ -27,7 +27,7 @@ class _ProfilePageState extends State<Body> {
       children: [
         PhotoProfile(
           imagePath:
-              "https://bestpkace-api.herokuapp.com/uploadsavatar/$avaterapi",
+              "https://bestpkace-api.herokuapp.com/uploadsavatar1/$avaterapi",
           onClicked: () async {
             Get.toNamed('/editprofil');
           },

@@ -66,7 +66,7 @@ class UserController extends GetxController {
       final user = body['payload']['user'];
       userController = User.fromJson(user);
       Avatar =
-          "https://bestpkace-api.herokuapp.com/uploadsavatar/${userController.avatar}";
+          "https://bestpkace-api.herokuapp.com/uploadsavatar1/${userController.avatar}";
       //Get.toNamed('/profil');
       if (user['role'] == 'USER') {
         Get.toNamed('/editprofil');
