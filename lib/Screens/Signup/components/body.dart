@@ -8,16 +8,20 @@ import 'package:flutterbestplace/components/rounded_input_field.dart';
 import 'package:flutterbestplace/components/rounded_password_field.dart';
 import 'package:flutterbestplace/components/Dropdown_widget.dart';
 import 'package:flutterbestplace/Controllers/user_controller.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutterbestplace/models/Data.dart';
 import 'package:get/get.dart';
 
 class Body extends StatelessWidget {
+  UserController _controller = Get.put(UserController());
+  //UserController _controller = UserController();
   var name;
   var mail;
   var psw;
   var role;
- 
+
   final _formKey = GlobalKey<FormState>();
-  UserController _controller = Get.put(UserController());
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -90,7 +94,6 @@ class Body extends StatelessWidget {
                   } else if (value == 'Place') {
                     role = 'PLACE';
                   }
-                  print(role);
                 },
                 valueSelect: role,
                 validate: (value) {
@@ -103,10 +106,31 @@ class Body extends StatelessWidget {
               ),
               RoundedButton(
                 text: "SIGNUP",
-                press: () {
+                press: () async {
                   var fromdata = _formKey.currentState;
                   if (fromdata.validate()) {
-                    _controller.signup(name, mail, psw, role);
+                    fromdata.save();
+                    Data data = await _controller.signup(name, mail, psw, role);
+                    if (data.status == 'success') {
+                      if (role == 'PLACE') {
+                        _controller.idController = data.payload['_id'];
+                        Get.toNamed('/contactPlace');
+                      } else if (role == 'USER') {
+                        Get.toNamed('/login');
+                      }
+                    } else {
+                      AwesomeDialog(
+                          context: context,
+                          dialogType: DialogType.ERROR,
+                          animType: AnimType.RIGHSLIDE,
+                          headerAnimationLoop: true,
+                          title: 'Error',
+                          desc: data.message,
+                          btnOkOnPress: () {},
+                          btnOkIcon: Icons.cancel,
+                          btnOkColor: Colors.red)
+                        ..show();
+                    }
                   } else {
                     print("notvalid");
                   }

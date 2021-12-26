@@ -26,7 +26,7 @@ class _ProfilePageState extends State<Body> {
   ];
   @override
   Widget build(BuildContext context) {
-    UserController _controller = Get.put(UserController());
+    /*  UserController _controller = Get.put(UserController());
     User user = _controller.userController;
     String avaterapi = user.avatar;
 
@@ -91,7 +91,7 @@ class _ProfilePageState extends State<Body> {
 
         //buildExpanded(context, categories),
       ],
-    );
+    );*/
   }
 
   Widget buildSlidingPanel({
@@ -155,20 +155,6 @@ class _ProfilePageState extends State<Body> {
         ),
         width: 40,
         height: 8,
-      );
-
-  Widget buildName(User user) => Column(
-        children: [
-          Text(
-            user.fullname,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            user.email,
-            style: TextStyle(color: Colors.grey),
-          )
-        ],
       );
 
   Widget buildRating() => RatingBar.builder(
