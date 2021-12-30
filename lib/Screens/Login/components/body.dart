@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterbestplace/Controllers/auth_service.dart';
 import 'package:flutterbestplace/Screens/Login/components/background.dart';
 import 'package:flutterbestplace/components/already_have_an_account_acheck.dart';
 import 'package:flutterbestplace/components/rounded_button.dart';
@@ -14,7 +15,7 @@ import 'package:get/get.dart';
 class Body extends StatelessWidget {
   var mail;
   var psw;
-  User user = User();
+  CUser user = CUser();
   final _formKey = GlobalKey<FormState>();
   UserController _controller = Get.put(UserController());
   @override
@@ -69,34 +70,11 @@ class Body extends StatelessWidget {
               RoundedButton(
                 text: "LOGIN",
                 press: () async {
-                  var fromdata = _formKey.currentState;
-                  if (fromdata.validate()) {
-                    fromdata.save();
-                    Data data = await _controller.login(mail, psw);
-                    if (data.status == 'failed') {
-                      AwesomeDialog(
-                          context: context,
-                          dialogType: DialogType.ERROR,
-                          animType: AnimType.RIGHSLIDE,
-                          headerAnimationLoop: true,
-                          title: 'Error',
-                          desc: data.message,
-                          btnOkOnPress: () {},
-                          btnOkIcon: Icons.cancel,
-                          btnOkColor: Colors.red)
-                        ..show();
-                    } else {
-                      Map<String, dynamic> user = data.payload['user'];
-                      _controller.userController = User.fromJson(user).obs;
-                      _controller.idController = user['_id'];
-                      print(_controller.userController);
-                      //_controller.change(_controller.userController);
-                      print(_controller.idController);
+                   await AuthService().SingIn(mail,psw);
+
                       Get.toNamed('/profilPlace');
-                    }
-                  } else {
-                    print("notvalid");
-                  }
+
+
                 },
               ),
               SizedBox(height: size.height * 0.03),

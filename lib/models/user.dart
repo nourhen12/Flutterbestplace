@@ -1,34 +1,39 @@
+import 'dart:core';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutterbestplace/models/post.dart';
 import 'package:get/get.dart';
 
-class User {
+class CUser {
   String id;
   String fullname;
+  String displayName;
   String email;
   String password;
   String phone;
   String ville;
   String adresse;
   String role;
-  String avatar;
+  String photoUrl;
   List followers;
   List following;
   List<dynamic> posts;
-  User(
+  CUser(
       {this.id,
       this.fullname,
+        this.displayName,
       this.email,
       this.password,
       this.phone,
       this.ville,
       this.adresse,
       this.role,
-      this.avatar,
+      this.photoUrl,
       this.followers,
       this.following,
       this.posts});
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+  factory CUser.fromJson(Map<String, dynamic> json) {
+    return CUser(
       id: json['_id'],
       fullname: json['fullname'],
       email: json['email'],
@@ -37,11 +42,14 @@ class User {
       ville: json['ville'],
       adresse: json['adresse'],
       role: json[' role'],
-      avatar: json['avatar'],
+      photoUrl: json['photoUrl'],
       followers: json['followers'],
       following: json['following'],
       posts: json['posts'],
     );
+  }
+  factory CUser.fromDocument(DocumentSnapshot doc){
+    return CUser(id: doc['id'], email: doc['email'], fullname: doc['username'], photoUrl: doc['photoUrl'], displayName: doc['displayName']);
   }
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -52,9 +60,10 @@ class User {
         'ville': ville,
         'adresse': adresse,
         'role': role,
-        'avatar': avatar,
+        'photoUrl': photoUrl,
         'followers': followers,
         'following': following,
         'posts': posts,
       };
+
 }

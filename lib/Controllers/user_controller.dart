@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class UserController extends GetxController {
   final String url = "https://bestpkace-api.herokuapp.com/users";
-  Rx<User> userController;
+  Rx<CUser> userController;
   String idController;
   var imageList = [
     'images/roys1.jpg',
@@ -32,6 +32,7 @@ class UserController extends GetxController {
     Map<String, dynamic> res = jsonDecode(response.body);
     return Data.fromJson(res);
   }
+
 
   //connexion
   Future<Data> login(email, password) async {
@@ -64,7 +65,7 @@ class UserController extends GetxController {
     return Data.fromJson(res);
   }
 
-  Future<User> updateUser(String id, String name, String phone, String ville,
+  Future<CUser> updateUser(String id, String name, String phone, String ville,
       String adresse) async {
     Map user = {
       'fullname': name,
@@ -82,8 +83,8 @@ class UserController extends GetxController {
     );
     Map<String, dynamic> body = jsonDecode(response.body);
     if (body['status'] == 'success') {
-      print(User.fromJson(body['payload']));
-      userController = User.fromJson(body['payload']).obs;
+      print(CUser.fromJson(body['payload']));
+      userController = CUser.fromJson(body['payload']).obs;
       print(userController);
       Get.toNamed('/profilUser');
     } else {
@@ -142,4 +143,5 @@ class UserController extends GetxController {
   }
   */
   }*/
+
 }

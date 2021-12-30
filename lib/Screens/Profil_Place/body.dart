@@ -35,7 +35,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(
-                        "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.avatar}"),
+                        "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.photoUrl}"),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -111,7 +111,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       );
-  Widget buildName(User user) => Column(children: [
+  Widget buildName(CUser user) => Column(children: [
         Text(
           user.fullname,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
@@ -255,7 +255,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   /// Title Section
-  Column _titleSection(User user) {
+  Column _titleSection(CUser user) {
     return Column(
       children: <Widget>[
         Text(

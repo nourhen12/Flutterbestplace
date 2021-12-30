@@ -38,7 +38,7 @@ class _EditProfilePageState extends State<Body> {
               Obx(
                     () => PhotoProfile(
                   imagePath:
-                  "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.avatar}",
+                  "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.photoUrl}",
                   isEdit: true,
                   onClicked: () async {},
                 ),

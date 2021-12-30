@@ -25,7 +25,7 @@ class _ProfilePageState extends State<Body> {
         Obx(
               () => PhotoProfile(
             imagePath:
-            "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.avatar}",
+            "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.photoUrl}",
             onClicked: () async {
               Get.toNamed('/editprofil');
             },
@@ -109,7 +109,7 @@ class _ProfilePageState extends State<Body> {
     );
   }
 
-  Widget buildName(User user) => Column(
+  Widget buildName(CUser user) => Column(
     children: [
       Text(
         user.fullname,
