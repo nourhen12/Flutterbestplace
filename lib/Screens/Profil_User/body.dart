@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterbestplace/Controllers/auth_service.dart';
 import 'package:flutterbestplace/components/button_widget.dart';
 import 'package:flutterbestplace/components/photo_profil.dart';
 import 'package:flutterbestplace/components/numbers_widget.dart';
@@ -15,7 +16,8 @@ class Body extends StatefulWidget {
 class _ProfilePageState extends State<Body> {
   @override
   Widget build(BuildContext context) {
-    UserController _controller = Get.put(UserController());
+   // UserController _controller = Get.put(UserController());
+    AuthService _controller = Get.put(AuthService());
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
@@ -25,7 +27,7 @@ class _ProfilePageState extends State<Body> {
         Obx(
               () => PhotoProfile(
             imagePath:
-            "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.photoUrl}",
+            _controller.userController.value.photoUrl,
             onClicked: () async {
               Get.toNamed('/editprofil');
             },
@@ -46,14 +48,14 @@ class _ProfilePageState extends State<Body> {
           },
         )),*/
         const SizedBox(height: 24),
-        Obx(
+       /* Obx(
               () => NumbersWidget(
-            Following: _controller.userController.value.following,
+            Following: "34",
             Followers: _controller.userController.value.followers,
-            idCurret: _controller.idController,
+            idCurret: _controller.userController.value.id,
             iduser: "61b6821a8a3ffd0023dc6323",
           ),
-        ),
+        ),*/
         SizedBox(
           height: 30,
         ),

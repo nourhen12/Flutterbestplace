@@ -35,8 +35,8 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
 final DateTime timestamp=DateTime.now();
 class Body extends StatelessWidget {
 
-  UserController _controller = Get.put(UserController());
-  //UserController _controller = UserController();
+  //UserController _controller = Get.put(UserController());
+  AuthService _controller = Get.put(AuthService());
   var name;
   var mail;
   var psw;
@@ -131,13 +131,11 @@ class Body extends StatelessWidget {
               RoundedButton(
                 text: "SIGNUP",
                 press: () async {
-                  print(psw);
-                  print(mail);
     var fromdata = _formKey.currentState;
     if (fromdata.validate()) {
       fromdata.save();
-      await AuthService().SingUp(name,mail, psw,role);
-      Navigator.of(context).pop();
+      await _controller.createUser(name,mail, psw,role);
+      print(_controller.userController);
 
     }else {
       print("notvalid");

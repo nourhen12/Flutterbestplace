@@ -17,7 +17,7 @@ class Body extends StatelessWidget {
   var psw;
   CUser user = CUser();
   final _formKey = GlobalKey<FormState>();
-  UserController _controller = Get.put(UserController());
+  AuthService _controller = Get.put(AuthService());
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -70,11 +70,21 @@ class Body extends StatelessWidget {
               RoundedButton(
                 text: "LOGIN",
                 press: () async {
-                   await AuthService().SingIn(mail,psw);
+    var fromdata = _formKey.currentState;
+    if (fromdata.validate()) {
+    fromdata.save();
+                  print(mail);
+                  print(psw);
+                   await _controller.login(mail,psw);
+                   if(_controller.userController.value.role=="Place"){
+                      Get.toNamed('/profilPlace');}
+                   else{
+                     Get.toNamed('/profilUser');
+                   }
 
-                      Get.toNamed('/profilPlace');
-
-
+    }else {
+      print("notvalid");
+    }
                 },
               ),
               SizedBox(height: size.height * 0.03),

@@ -28,7 +28,7 @@ class CUser {
       this.ville,
       this.adresse,
       this.role,
-      this.photoUrl,
+      this.photoUrl="assets/images/profil_defaut.jpg",
       this.followers,
       this.following,
       this.posts});
@@ -49,7 +49,21 @@ class CUser {
     );
   }
   factory CUser.fromDocument(DocumentSnapshot doc){
-    return CUser(id: doc['id'], email: doc['email'], fullname: doc['username'], photoUrl: doc['photoUrl'], displayName: doc['displayName']);
+    return CUser(id: doc['id'],fullname: doc['username'], email: doc['email'],  phone: doc['phone'],ville: doc['ville'],adresse: doc['adresse'], photoUrl: doc['photoUrl'], followers: doc['followers'],following: doc['following'],displayName: doc['displayName'],posts: doc['posts'],);
+  }
+  CUser.fromDocumentSnapshot({DocumentSnapshot documentSnapshot}) {
+    id = documentSnapshot.id;
+    fullname = documentSnapshot["name"];
+    email = documentSnapshot["email"];
+    password= documentSnapshot['password'];
+    phone= documentSnapshot['phone'];
+    ville= documentSnapshot['ville'];
+    adresse=documentSnapshot['adresse'];
+    role= documentSnapshot[' role'];
+    photoUrl= documentSnapshot['photoUrl'];
+    followers= documentSnapshot['followers'];
+    following= documentSnapshot['following'];
+    posts=documentSnapshot['posts'];
   }
   Map<String, dynamic> toJson() => {
         'id': id,
