@@ -1,4 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterbestplace/Controllers/auth_service.dart';
 import 'package:flutterbestplace/Screens/Welcome/welcome_screen.dart';
 import 'package:flutterbestplace/constants.dart';
 import 'package:flutterbestplace/Screens/Signup/signup_screen.dart';
@@ -9,24 +11,35 @@ import 'package:flutterbestplace/Screens/Accueil/accueil.dart';
 import 'package:flutterbestplace/Screens/Profil_User/profil_screen.dart';
 import 'package:flutterbestplace/Screens/EditProfil/edit_profil.dart';
 import 'package:flutterbestplace/Screens/Profil_Place/profil_place.dart';
+
 import 'package:flutterbestplace/Screens/google_map/add_Marker.dart';
 import 'package:flutterbestplace/Screens/google_map/all_Markers.dart';
 import 'package:get/get.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+   return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Auth',
       theme: ThemeData(
         primaryColor: kPrimaryColor,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: WelcomeScreen(),
+      home: StreamBuilder(
+        stream:AuthService().onChangedUser,
+        builder: (context,snapshot){
+          return snapshot.data==null?WelcomeScreen():AccuielScreen();
+        },
+
+      ),
       getPages: [
         GetPage(name: '/signup', page: () => SignUpScreen()),
         GetPage(name: '/contactPlace', page: () => ContactPlace()),

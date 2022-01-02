@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterbestplace/Controllers/auth_service.dart';
 import 'package:flutterbestplace/components/rounded_button.dart';
 import 'package:flutterbestplace/components/rounded_input_field.dart';
 import 'package:flutterbestplace/components/rounded_password_field.dart';
@@ -13,14 +14,14 @@ class AccuielScreen extends StatelessWidget {
     return Scaffold(
       body: RoundedButton(
           text: "USERS",
-          press: () {
-            getUser();
+          press: ()async {
+            await AuthService().signOut();
           }),
     );
   }
 }
 
-Future<User> getUser() async {
+Future<CUser> getUser() async {
   final response =
       await http.get(Uri.parse('https://bestpkace-api.herokuapp.com/users'));
   print(jsonDecode(response.body));

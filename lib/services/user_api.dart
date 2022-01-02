@@ -8,7 +8,7 @@ class UserAPI {
   final String url = "https://bestpkace-api.herokuapp.com/users";
 
   //register :
-  Future<User> register(name, email, password) async {
+  Future<CUser> register(name, email, password) async {
     final response = await http.post(
       Uri.parse("$url/register"),
       headers: <String, String>{
@@ -24,7 +24,7 @@ class UserAPI {
   }
 
   //connexion
-  Future<User> login(email, password) async {
+  Future<CUser> login(email, password) async {
     //  SharedPreferences prefs = await SharedPreferences.getInstance();
     final response = await http.post(
       Uri.parse("$url/authenticate"),
@@ -40,7 +40,7 @@ class UserAPI {
     final user = body['payload']['user'];
     final message = body['message'];
     if (body['status'] == 'success') {
-      return User.fromJson(user);
+      return CUser.fromJson(user);
     } else {
       return message;
     }
@@ -54,10 +54,10 @@ class UserAPI {
     }*/
   }
 
-  Future<User> UserById(String id) async {
+  Future<CUser> UserById(String id) async {
     final response = await http.get(Uri.parse('$url/$id'));
     Map<String, dynamic> body = jsonDecode(response.body);
-    User user = body['payload']['user'];
+    CUser user = body['payload']['user'];
 
     if (response.statusCode == 200) {
       return user;
@@ -66,7 +66,7 @@ class UserAPI {
     }
   }
 
-  Future<User> updateUser(String id, String name, String email) async {
+  Future<CUser> updateUser(String id, String name, String email) async {
     Map data = {'fullname': name, 'email': email};
     final response = await http.put(
       Uri.parse("$url/update/$id"),
@@ -79,7 +79,7 @@ class UserAPI {
     print(body);
 
     if (body['status'] == 'success') {
-      return User.fromJson(body['payload']);
+      return CUser.fromJson(body['payload']);
     } else {
       throw Exception('Failed to register user.');
     }

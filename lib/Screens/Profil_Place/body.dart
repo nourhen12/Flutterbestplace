@@ -6,9 +6,6 @@ import 'package:get/get.dart';
 import 'package:flutterbestplace/Controllers/user_controller.dart';
 import 'package:flutterbestplace/models/user.dart';
 import 'package:flutterbestplace/constants.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:flutterbestplace/Controllers/maps_controller.dart';
-import 'package:geolocator/geolocator.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -17,34 +14,13 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _isOpen = false;
-  bool isLoading = false;
   PanelController _panelController = PanelController();
-  MarkerController controllerMarker = MarkerController();
+
   UserController _controller = Get.put(UserController());
-  String postOrientation = "grid";
-  Set<Marker> marker = {};
-  CameraPosition _kGooglePlex;
 
-  Future<Position> getLateAndLate() async {
-    controllerMarker.MarkerById(_controller.userController.value.marker[0]);
-    var lat = controllerMarker.MController.latitude;
-    print(lat);
-    var long = controllerMarker.MController.longitude;
-    print(long);
-    _kGooglePlex = CameraPosition(
-      target: LatLng(lat, long),
-      zoom: 15.4746,
-    );
-    marker.add(Marker(
-        markerId: MarkerId("1"), draggable: true, position: LatLng(lat, long)));
-    setState(() {});
-  }
-
-  void initState() {
-    getLateAndLate();
-    super.initState();
-  }
-
+  /// **********************************************
+  /// LIFE CYCLE METHODS
+  /// **********************************************
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,12 +30,12 @@ class _ProfilePageState extends State<ProfilePage> {
           Obx(
             () => FractionallySizedBox(
               alignment: Alignment.topCenter,
-              heightFactor: 0.4,
+              heightFactor: 0.7,
               child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(
-                        "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.avatar}"),
+                        "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.photoUrl}"),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -73,6 +49,8 @@ class _ProfilePageState extends State<ProfilePage> {
               color: Colors.white,
             ),
           ),
+
+          /// Sliding Panel
           SlidingUpPanel(
             controller: _panelController,
             borderRadius: BorderRadius.only(
@@ -109,22 +87,31 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  /// **********************************************
   /// WIDGETS
-
-  Widget buildCircle({
-    Widget child,
-    double all,
-    Color color,
-  }) =>
-      ClipOval(
-        child: Container(
-          padding: EdgeInsets.all(all),
-          color: color,
-          child: child,
+  /// **********************************************
+  Widget IconTap() => Container(
+        color: Colors.black,
+        padding: EdgeInsets.symmetric(horizontal: 50.0, vertical: 15.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.image, color: kPrimaryColor, size: 30.0),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.info, color: kPrimaryColor, size: 30.0),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.map, color: kPrimaryColor, size: 30.0),
+            )
+          ],
         ),
       );
-
-  Widget buildName(User user) => Column(children: [
+  Widget buildName(CUser user) => Column(children: [
         Text(
           user.fullname,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
@@ -170,7 +157,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 Obx(
                   () => _titleSection(_controller.userController.value),
                 ),
-
                 Center(child: buildRating()),
                 Obx(
                   () => NumbersWidget(
@@ -186,137 +172,28 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           IconTap(),
-          buildProfilePosts(),
-        ],
-      ),
-    );
-  }
-
-//
-  buildProfilePosts() {
-    if (_controller.imageList.isEmpty) {
-      return Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
+          GridView.builder(
+            primary: false,
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            itemCount: _controller.imageList.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 16,
+            ),
+            itemBuilder: (BuildContext context, int index) => Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/vide.png'),
+                  image: AssetImage(_controller.imageList[index]),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 30.0),
-              child: Text(
-                "No Posts",
-                style: TextStyle(
-                  color: Colors.pink[50],
-                  fontSize: 30.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    } else if (postOrientation == "grid") {
-      return GridView.builder(
-        primary: false,
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        itemCount: _controller.imageList.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 1,
-          mainAxisSpacing: 1,
-        ),
-        itemBuilder: (BuildContext context, int index) => Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(_controller.imageList[index]),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-      );
-    } else if (postOrientation == "map") {
-      return Container(
-        child: GoogleMap(
-          markers: marker,
-          mapType: MapType.normal,
-          initialCameraPosition: _kGooglePlex,
-          onMapCreated: (controller) {},
-        ),
-        height: 500,
-      );
-    }
-  }
-
-  //map
-  Widget buildLocation() {
-    return new Scaffold(
-      body: Column(
-        children: [
-          _kGooglePlex == null
-              ? CircularProgressIndicator()
-              : Container(
-                  child: GoogleMap(
-                    markers: marker,
-                    mapType: MapType.normal,
-                    initialCameraPosition: _kGooglePlex,
-                    onMapCreated: (controller) {},
-                  ),
-                  height: 500,
-                ),
-          ElevatedButton(
-            child: Text(
-              "button",
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: () {
-              // controllerMarker.PlaceMap(lat, long);
-            },
-            style: ElevatedButton.styleFrom(
-                primary: kPrimaryColor,
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                textStyle: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w100)),
           ),
         ],
       ),
     );
   }
-
-//IconTap
-  Widget IconTap() => Container(
-        color: kPrimaryLightColor,
-        padding: EdgeInsets.symmetric(horizontal: 50.0, vertical: 15.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  postOrientation = "grid";
-                });
-              },
-              icon: Icon(Icons.image, color: kPrimaryColor, size: 30.0),
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  postOrientation = "map";
-                });
-              },
-              icon: Icon(Icons.map, color: kPrimaryColor, size: 30.0),
-            )
-          ],
-        ),
-      );
 
   /// Action Section
   Row _actionSection({double hPadding}) {
@@ -378,7 +255,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   /// Title Section
-  Column _titleSection(User user) {
+  Column _titleSection(CUser user) {
     return Column(
       children: <Widget>[
         Text(
@@ -389,7 +266,6 @@ class _ProfilePageState extends State<ProfilePage> {
             fontSize: 30,
           ),
         ),
-        buildEditIcon(kPrimaryColor),
         SizedBox(
           height: 8,
         ),
@@ -411,23 +287,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ],
     );
   }
-
-  Widget buildEditIcon(Color color) => buildCircle(
-        color: Colors.white,
-        all: 3,
-        child: buildCircle(
-          color: color,
-          all: 5,
-          child: IconButton(
-            onPressed: () {
-              Get.toNamed('/editprofil');
-            },
-            icon: Icon(
-              Icons.edit,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-        ),
-      );
 }

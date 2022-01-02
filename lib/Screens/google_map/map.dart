@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterbestplace/constants.dart';
 //google maps :
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-//geolocator : 
+//geolocator :
 import 'package:geolocator/geolocator.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 //geocoding : les informations de position
@@ -159,12 +159,12 @@ class MapSampleState extends State<MapSample> {
           _kGooglePlex == null
               ? CircularProgressIndicator()
               : Container(
-                  child: GoogleMap(
-                    polylines: Set<Polyline>.of(polylines.values),
-                    markers: marker,
-                    mapType: MapType.normal,
-                    initialCameraPosition: _kGooglePlex,
-                    /*    onTap: (LatLng t) {
+            child: GoogleMap(
+              polylines: Set<Polyline>.of(polylines.values),
+              markers: marker,
+              mapType: MapType.normal,
+              initialCameraPosition: _kGooglePlex,
+              /*    onTap: (LatLng t) {
                       print('t1 : ${t.latitude}');
                       print('t1 : ${t.longitude}');
                       mymarker.remove(Marker(markerId: MarkerId("1")));
@@ -173,13 +173,13 @@ class MapSampleState extends State<MapSample> {
                       print('t2 : ${t.latitude}');
                       print('t2 : ${t.longitude}');
                     },*/
-                    onMapCreated: (controller) {
-                      _controller.complete(controller);
-                    },
-                  ),
-                  height: 500,
-                  width: 400,
-                ),
+              onMapCreated: (controller) {
+                _controller.complete(controller);
+              },
+            ),
+            height: 500,
+            width: 400,
+          ),
           ElevatedButton(
             child: Text(
               "button",

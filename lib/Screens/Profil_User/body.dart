@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterbestplace/Controllers/auth_service.dart';
 import 'package:flutterbestplace/components/button_widget.dart';
 import 'package:flutterbestplace/components/photo_profil.dart';
 import 'package:flutterbestplace/components/numbers_widget.dart';
@@ -15,7 +16,8 @@ class Body extends StatefulWidget {
 class _ProfilePageState extends State<Body> {
   @override
   Widget build(BuildContext context) {
-    UserController _controller = Get.put(UserController());
+   // UserController _controller = Get.put(UserController());
+    AuthService _controller = Get.put(AuthService());
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
@@ -23,9 +25,9 @@ class _ProfilePageState extends State<Body> {
       physics: BouncingScrollPhysics(),
       children: [
         Obx(
-          () => PhotoProfile(
+              () => PhotoProfile(
             imagePath:
-                "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.avatar}",
+            _controller.userController.value.photoUrl,
             onClicked: () async {
               Get.toNamed('/editprofil');
             },
@@ -33,7 +35,7 @@ class _ProfilePageState extends State<Body> {
         ),
         const SizedBox(height: 24),
         Obx(
-          () => buildName(_controller.userController.value),
+              () => buildName(_controller.userController.value),
         ),
         //const SizedBox(height: 24),
         //Center(child: buildRating()),
@@ -46,14 +48,14 @@ class _ProfilePageState extends State<Body> {
           },
         )),*/
         const SizedBox(height: 24),
-        Obx(
-          () => NumbersWidget(
-            Following: _controller.userController.value.following,
+       /* Obx(
+              () => NumbersWidget(
+            Following: "34",
             Followers: _controller.userController.value.followers,
-            idCurret: _controller.idController,
+            idCurret: _controller.userController.value.id,
             iduser: "61b6821a8a3ffd0023dc6323",
           ),
-        ),
+        ),*/
         SizedBox(
           height: 30,
         ),
@@ -109,18 +111,18 @@ class _ProfilePageState extends State<Body> {
     );
   }
 
-  Widget buildName(User user) => Column(
-        children: [
-          Text(
-            user.fullname,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            user.email,
-            style: TextStyle(color: Colors.grey),
-          ),
-          /* Text(
+  Widget buildName(CUser user) => Column(
+    children: [
+      Text(
+        user.fullname,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        user.email,
+        style: TextStyle(color: Colors.grey),
+      ),
+      /* Text(
             user.phone,
             style: TextStyle(color: Colors.grey),
           ),
@@ -132,22 +134,22 @@ class _ProfilePageState extends State<Body> {
             user.adresse,
             style: TextStyle(color: Colors.grey),
           )*/
-        ],
-      );
+    ],
+  );
 
   Widget buildRating() => RatingBar.builder(
-        initialRating: 2.5,
-        minRating: 1,
-        direction: Axis.horizontal,
-        allowHalfRating: true,
-        itemCount: 5,
-        itemPadding: EdgeInsets.symmetric(horizontal: 3.0),
-        itemBuilder: (context, _) => Icon(
-          Icons.star,
-          color: Colors.amber,
-        ),
-        onRatingUpdate: (rating) {
-          print(rating);
-        },
-      );
+    initialRating: 2.5,
+    minRating: 1,
+    direction: Axis.horizontal,
+    allowHalfRating: true,
+    itemCount: 5,
+    itemPadding: EdgeInsets.symmetric(horizontal: 3.0),
+    itemBuilder: (context, _) => Icon(
+      Icons.star,
+      color: Colors.amber,
+    ),
+    onRatingUpdate: (rating) {
+      print(rating);
+    },
+  );
 }

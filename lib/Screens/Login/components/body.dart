@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterbestplace/Controllers/auth_service.dart';
 import 'package:flutterbestplace/Screens/Login/components/background.dart';
 import 'package:flutterbestplace/components/already_have_an_account_acheck.dart';
 import 'package:flutterbestplace/components/rounded_button.dart';
@@ -14,9 +15,9 @@ import 'package:get/get.dart';
 class Body extends StatelessWidget {
   var mail;
   var psw;
-  User user = User();
+  CUser user = CUser();
   final _formKey = GlobalKey<FormState>();
-  UserController _controller = Get.put(UserController());
+  AuthService _controller = Get.put(AuthService());
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -72,23 +73,13 @@ class Body extends StatelessWidget {
                   var fromdata = _formKey.currentState;
                   if (fromdata.validate()) {
                     fromdata.save();
-                    Data data = await _controller.login(mail, psw);
-                    if (data.status == 'failed') {
-                      AwesomeDialog(
-                          context: context,
-                          dialogType: DialogType.ERROR,
-                          animType: AnimType.RIGHSLIDE,
-                          headerAnimationLoop: true,
-                          title: 'Error',
-                          desc: data.message,
-                          btnOkOnPress: () {},
-                          btnOkIcon: Icons.cancel,
-                          btnOkColor: Colors.red)
-                        ..show();
-                    } else {
-                      Map<String, dynamic> user = data.payload['user'];
-                      _controller.userController = User.fromJson(user).obs;
+                    print(mail);
+                    print(psw);
+                    await _controller.login(mail, psw);
+                    if (_controller.userController.value.role == "Place") {
                       Get.toNamed('/profilPlace');
+                    } else {
+                      Get.toNamed('/profilUser');
                     }
                   } else {
                     print("notvalid");

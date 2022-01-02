@@ -33,7 +33,7 @@ class PhotoProfile extends StatelessWidget {
   }
 
   Widget buildImage() {
-    final image = NetworkImage(imagePath);
+    final image = AssetImage(imagePath);
 
     return ClipOval(
       child: Material(
