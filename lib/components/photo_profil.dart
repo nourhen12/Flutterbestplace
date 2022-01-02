@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutterbestplace/constants.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PhotoProfile extends StatelessWidget {
   final String imagePath;
@@ -33,17 +34,17 @@ class PhotoProfile extends StatelessWidget {
   }
 
   Widget buildImage() {
-    final image = AssetImage(imagePath);
+
 
     return ClipOval(
       child: Material(
         color: Colors.transparent,
         child: Ink.image(
-          image: image,
+          image:  imagePath ==null ? AssetImage("assets/images/profil_defaut.jpg"):CachedNetworkImageProvider(imagePath) ,
           fit: BoxFit.cover,
           width: 128,
           height: 128,
-          child: InkWell(onTap: onClicked),
+          //child: InkWell(onTap: onClicked),
         ),
       ),
     );
@@ -55,11 +56,20 @@ class PhotoProfile extends StatelessWidget {
         child: buildCircle(
           color: color,
           all: 8,
-          child: Icon(
+          child:
+          IconButton(
+            onPressed: onClicked,
+            icon: Icon( isEdit ? Icons.add_a_photo : Icons.edit,
+                color: Colors.white,
+                size: 20),
+            size: 20
+          )
+         /* IconButton(
             isEdit ? Icons.add_a_photo : Icons.edit,
             color: Colors.white,
             size: 20,
-          ),
+            onPressed: ,
+          ),*/
         ),
       );
 

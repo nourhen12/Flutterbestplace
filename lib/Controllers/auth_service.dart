@@ -1,106 +1,146 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutterbestplace/Controllers/db_service.dart';
 import 'package:flutterbestplace/Controllers/postes_controller.dart';
 import 'package:flutterbestplace/Controllers/userController.dart';
+import 'package:flutterbestplace/Screens/Signup/components/body.dart';
 import 'package:flutterbestplace/models/user.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService extends GetxController {
-  /* final _auth=FirebaseAuth.instance;
-
-
-
-  SingIn(String email,String password) async {
-    try{
-     return await _auth.signInWithEmailAndPassword(email: email, password: password);
-    }on FirebaseException catch(e){
-      return null;
-    }
-
-  }
-  SingUp(String name,String email,String password,String role)async{
-    try{
-     await _auth.createUserWithEmailAndPassword(email: email, password: password);
-    await DBService().saveUser(CUser(id: user.uid,fullname: name,email:email,role:role));
-    return true;
-    }on FirebaseException catch(e){
-      return false;
-
-    }
-  }
-
-  User get user =>FirebaseAuth.instance.currentUser;
-Stream<User> get onChangedUser =>_auth.authStateChanges();
-signOut()async{
-  try{
-    await _auth.signOut();
-  }catch(e){}
-}*/
-
   FirebaseAuth _auth = FirebaseAuth.instance;
-  //Rx<User> _firebaseUser ;
   Rx<CUser> userController = CUser().obs;
-CUser get user => userController.value;
+
+  CUser get user => userController.value;
   User userC = FirebaseAuth.instance.currentUser;
+  String idController;
 
-Stream<User> get onChangedUser =>_auth.authStateChanges();
+  Stream<User> get onChangedUser => _auth.authStateChanges();
 
-
-  void createUser(String name, String email, String password,String role) async {
+  Future<dynamic> createUser(String name, String email, String password,
+      String role) async {
     try {
-    dynamic  _authResult = await _auth.createUserWithEmailAndPassword(
+      dynamic _authResult = await _auth.createUserWithEmailAndPassword(
           email: email.trim(), password: password);
-      //create user in database.dart
       CUser _user = CUser(
-        id: _authResult.user.uid,
-        fullname: name,
-        email: _authResult.user.email,
-        role:role
-      );
+          id: _authResult.user.uid,
+          fullname: name,
+          email: _authResult.user.email,
+          role: role);
       if (await DBService().createNewUser(_user)) {
-        userController.value = _user;
-
-        print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ${userController.value.email}");
-        Get.toNamed('/profilUser');
-            //Get.back();
+        return null;
       }
-    } catch (e) {
-      /*Get.snackbar(
-        "Error creating Account",
-        e.message,
-        snackPosition: SnackPosition.BOTTOM,
-      );*/
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        return 'The password provided is too weak.';
+      } else if (e.code == 'email-already-in-use') {
+        return 'The account already exists for that email.';
+      } else {
+        return e.message;
+      }
     }
   }
 
-  void login(String email, String password) async {
+  Future<dynamic> login(String email, String password) async {
     try {
-      UserCredential _authResult = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: password
-      );
+      UserCredential _authResult = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
       userController.value = await DBService().getUser(_authResult.user.uid);
-      print("ghfvhjghfvkmhvkhvkhvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv${userController.value.email}");
+      idController = _authResult.user.uid;
+      return null;
       print("USER log in");
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        return 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        return 'Wrong password provided for that user.';
+      } else {
+        return e.message;
       }
     }
+  }
+
+  Future<void> linkGoogleAndTwitter() async {
+    // Trigger the Google Authentication flow.
+    final GoogleSignInAccount user = await GoogleSignIn().signIn();
+    // Obtain the auth details from the request.
+    final GoogleSignInAuthentication googleAuth = await user.authentication;
+    // Create a new credential.
+    final GoogleAuthCredential googleCredential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    // Sign in to Firebase with the Google [UserCredential].
+    final UserCredential googleUserCredential =
+    await FirebaseAuth.instance.signInWithCredential(googleCredential);
+    DocumentSnapshot doc = await usersRef.doc(googleUserCredential.user.uid)
+        .get();
+    if (!doc.exists) {
+
+      /*usersRef.doc(googleUserCredential.user.uid).set({'id': googleUserCredential.user.uid,
+        'email': googleUserCredential.user.email,
+        'photoUrl': googleUserCredential.user.photoURL,
+        'displayName': googleUserCredential.user.displayName,
+        'timestamp': timestamp, // John Doe
+      } ).then((value) => print("User Added"))
+          .catchError((error) => print("Failed to add user: $error"));
+      doc = await usersRef.doc(googleUserCredential.user.uid).get();
+*/
+      CUser _user = CUser(
+        id: googleUserCredential.user.uid,
+        fullname: googleUserCredential.user.displayName,
+        email: googleUserCredential.user.email,
+        photoUrl: googleUserCredential.user.photoURL,
+
+      );
+      await DBService().createNewUser(_user);
+    }
+    userController.value =
+    await DBService().getUser(googleUserCredential.user.uid);
+    idController = googleUserCredential.user.uid;
+    print(
+        "ghfvhjghfvkmhvkhvkhvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv${userController.value
+            .email}");
+    print("USER log in");
   }
 
   void signOut() async {
     try {
       await _auth.signOut();
-      userController.value =CUser();
+      userController.value = CUser();
     } catch (e) {
-     /* Get.snackbar(
+      /* Get.snackbar(
         "Error signing out",
         e.message,
         snackPosition: SnackPosition.BOTTOM,
       );*/
     }
+  }
+
+  Future<Map> updateUser(String id, String name, String phone, String ville,
+      String adresse) async {
+
+    /* CUser _user = CUser(
+        fullname: name,
+        phone: phone,
+        ville: ville,
+        adresse: adresse
+
+    );*/
+    Map res = {"status" : false ,"message" :""};
+    usersRef.doc(id).update({
+      'fullname': name,
+      'phone': phone,
+      'ville': ville,
+      'adresse': adresse,
+      'photoUrl': userController.value.photoUrl,
+    }).then((value) => res["status"]=true)
+        .catchError((error) => res["message"]="Failed to update user: $error",);
+    if (res["status"]) {
+      userController.value = await DBService().getUser(id);
+      Get.toNamed('/profilUser');
+    }
+    return res;
   }
 }

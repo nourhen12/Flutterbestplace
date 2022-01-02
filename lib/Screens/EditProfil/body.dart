@@ -1,6 +1,7 @@
 import 'dart:io';
-
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutterbestplace/Controllers/auth_service.dart';
 import 'package:flutterbestplace/Screens/Login/components/background.dart';
 import 'package:flutterbestplace/components/photo_profil.dart';
@@ -14,6 +15,14 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutterbestplace/models/Data.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
+import 'package:path_provider/path_provider.dart' as path_provider;
+
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
+
+import '../Signup/components/body.dart';
+final Reference storageRef=FirebaseStorage.instance.ref();
 
 class Body extends StatefulWidget {
   @override
@@ -27,6 +36,104 @@ class _EditProfilePageState extends State<Body> {
   var NewVille = null;
   var NewAdress = null;
   final _formKey = GlobalKey<FormState>();
+  File _image =File("");
+
+  bool isUploading = false;
+  String postId = Uuid().v4();
+  final picker = ImagePicker();
+
+
+  getImage() async {
+
+    final pickedFile = await picker.getImage(
+        source: ImageSource.camera, maxHeight: 675, maxWidth: 960);
+
+    setState(() {_image = File(pickedFile.path);
+    });
+  }
+
+  getImagegallery() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
+
+  selectImage(parentcontext) {
+    return showDialog(
+        context: parentcontext,
+
+        builder: (context) {
+          return SimpleDialog(
+            title: Text("Create Post"),
+            children: <Widget>[
+              SimpleDialogOption(
+                child: Text("Photo with Camera"),
+                onPressed: getImage,
+
+              ),
+              SimpleDialogOption(
+                child: Text("Image from Gallery"),
+                onPressed: getImagegallery,
+              ),
+              SimpleDialogOption(
+                child: Text("Cancel"),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          );
+        });
+  }
+  ///NOTE: Only supported on Android & iOS
+  ///Needs image_picker plugin {https://pub.dev/packages/image_picker}
+   compressFile(File file) async {
+    final filePath = file.absolute.path;
+
+    // Create output file path
+    // eg:- "Volume/VM/abcd_out.jpeg"
+    final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
+    final splitted = filePath.substring(0, (lastIndex));
+    final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path, outPath,
+      quality: 5,
+    );
+
+    print(file.lengthSync());
+    print(result.lengthSync());
+setState(() {_image=result;});
+
+  }
+  Future<String> uploadImage(imageFile) async {
+    UploadTask uploadTask =
+    storageRef.child("post_$postId.jpg").putFile(imageFile);
+    TaskSnapshot storageSnap = await uploadTask;
+    String downloadUrl = await storageSnap.ref.getDownloadURL();
+    return downloadUrl;
+  }
+
+  handleSubmit() async {
+    setState(() {
+      isUploading = true;
+    });
+   await compressFile(_image);
+
+    String mediaUrl = await uploadImage(_image);
+    usersRef.doc(_controller.user.id).update({
+      "photoUrl":  mediaUrl,
+    });
+    setState(() {
+      _image=File("");
+      isUploading = false;
+      postId = Uuid().v4();
+
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Background(
@@ -41,9 +148,20 @@ class _EditProfilePageState extends State<Body> {
                   imagePath:
                   _controller.userController.value.photoUrl,
                   isEdit: true,
-                  onClicked: () async {},
+                  onClicked: () async {
+                    selectImage(context);
+                    await handleSubmit();
+
+                  },
+
                 ),
+
               ),
+              RoundedButton(
+              text: "photo save",
+    press: () async {
+      isUploading ? null : () => handleSubmit();
+    }),
               const SizedBox(height: 24),
               Obx(
                     () => RoundedInputField(
@@ -100,8 +218,25 @@ class _EditProfilePageState extends State<Body> {
                 press: () async {
                   var fromdata = _formKey.currentState;
                   fromdata.save();
-                  var userId = _controller.userController.value.id;
-                  // Get.toNamed('/profil');
+                  var userId = _controller.idController;
+                  print("HGKJGVUUKHJHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH: $userId");
+                  print("name : $NewName , phone : $NewPhone , adresse : $NewAdress ville : $NewVille ");
+                  var res = _controller.updateUser(userId,NewName,NewPhone,NewVille,NewAdress);
+                  print("********************************************************");
+                  print(res);
+                 /* if(res["status"]){
+                  AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.ERROR,
+                  animType: AnimType.RIGHSLIDE,
+                  headerAnimationLoop: true,
+                  title: 'Error',
+                  desc:Errormessage,
+                  btnOkOnPress: () {},
+                  btnOkIcon: Icons.cancel,
+                  btnOkColor: Colors.red)
+                  ..show();
+                  }*/
                  // _controller.updateUser(
                   //    userId, NewName, NewPhone, NewVille, NewAdress);
                   /* if (data.status == 'success') {
