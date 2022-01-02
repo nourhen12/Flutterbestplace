@@ -3,34 +3,31 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutterbestplace/models/user.dart';
 
 class DBService {
-  /*var userCollection = FirebaseFirestore.instance.collection("user");
-
-  saveUser(CUser user) async{
-    try {
-      await userCollection.doc(user.id).set(user.toJson());
-    } catch (e) {}
-  }*/
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<bool> createNewUser(CUser user) async {
+  Future<dynamic> createNewUser(CUser user) async {
+
     try {
       await _firestore.collection("user").doc(user.id).set(
         user.toJson()
       );
       return true;
     } catch (e) {
-      print(e);
-      return false;
+      return e.message;
     }
   }
 
-   getUser(String uid) async {
+  getUser(String uid) async {
+     try {
      final userRef = FirebaseFirestore.instance.collection('user').withConverter<CUser>(
        fromFirestore: (snapshot, _) => CUser.fromJson(snapshot.data()),
        toFirestore: (user, _) => user.toJson(),
      );
      CUser userdata = await userRef.doc(uid).get().then((snapshot) => snapshot.data());
-return userdata;
+     return userdata;
+   } catch (e) {
+      print(e.message) ;
+  }
    }
 
   Future<void> addTodo(String content, String uid) async {

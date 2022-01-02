@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutterbestplace/Controllers/auth_service.dart';
 import 'package:flutterbestplace/components/button_widget.dart';
@@ -7,7 +9,9 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutterbestplace/models/user.dart';
 import 'package:get/get.dart';
 import 'package:flutterbestplace/Controllers/user_controller.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 class Body extends StatefulWidget {
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -16,7 +20,7 @@ class Body extends StatefulWidget {
 class _ProfilePageState extends State<Body> {
   @override
   Widget build(BuildContext context) {
-   // UserController _controller = Get.put(UserController());
+    // UserController _controller = Get.put(UserController());
     AuthService _controller = Get.put(AuthService());
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
@@ -48,7 +52,7 @@ class _ProfilePageState extends State<Body> {
           },
         )),*/
         const SizedBox(height: 24),
-       /* Obx(
+        /* Obx(
               () => NumbersWidget(
             Following: "34",
             Followers: _controller.userController.value.followers,

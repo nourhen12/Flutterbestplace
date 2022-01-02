@@ -73,14 +73,27 @@ class Body extends StatelessWidget {
     var fromdata = _formKey.currentState;
     if (fromdata.validate()) {
     fromdata.save();
-                  print(mail);
-                  print(psw);
-                   await _controller.login(mail,psw);
-                   if(_controller.userController.value.role=="Place"){
-                      Get.toNamed('/profilPlace');}
-                   else{
-                     Get.toNamed('/profilUser');
-                   }
+      var Errormessage = await _controller.login(mail,psw);
+    print("Erormessage $Errormessage");
+    if (Errormessage== null){
+      if(_controller.userController.value.role=="Place"){
+        Get.toNamed('/profilPlace');}
+      else{
+        Get.toNamed('/profilUser');
+      }
+    }else{
+      AwesomeDialog(
+          context: context,
+          dialogType: DialogType.ERROR,
+          animType: AnimType.RIGHSLIDE,
+          headerAnimationLoop: true,
+          title: 'Error',
+          desc:Errormessage ,
+          btnOkOnPress: () {},
+          btnOkIcon: Icons.cancel,
+          btnOkColor: Colors.red)
+        ..show();
+    }
 
     }else {
       print("notvalid");
