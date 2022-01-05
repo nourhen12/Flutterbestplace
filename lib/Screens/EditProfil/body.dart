@@ -5,6 +5,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutterbestplace/Controllers/auth_service.dart';
 import 'package:flutterbestplace/Screens/Login/components/background.dart';
 import 'package:flutterbestplace/components/photo_profil.dart';
+import 'package:flutterbestplace/components/progress.dart';
 import 'package:flutterbestplace/components/rounded_input_field.dart';
 import 'package:flutterbestplace/models/user.dart';
 import 'package:get/get.dart';
@@ -44,8 +45,7 @@ class _EditProfilePageState extends State<Body> {
 
 
   getImage() async {
-
-    final pickedFile = await picker.getImage(
+final pickedFile = await picker.getImage(
         source: ImageSource.camera, maxHeight: 675, maxWidth: 960);
 
     setState(() {_image = File(pickedFile.path);
@@ -91,55 +91,14 @@ class _EditProfilePageState extends State<Body> {
   }
   ///NOTE: Only supported on Android & iOS
   ///Needs image_picker plugin {https://pub.dev/packages/image_picker}
-   compressFile(File file) async {
-    final filePath = file.absolute.path;
 
-    // Create output file path
-    // eg:- "Volume/VM/abcd_out.jpeg"
-    final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
-    final splitted = filePath.substring(0, (lastIndex));
-    final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
-    var result = await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path, outPath,
-      quality: 5,
-    );
-
-    print(file.lengthSync());
-    print(result.lengthSync());
-setState(() {_image=result;});
-
-  }
-  Future<String> uploadImage(imageFile) async {
-    UploadTask uploadTask =
-    storageRef.child("post_$postId.jpg").putFile(imageFile);
-    TaskSnapshot storageSnap = await uploadTask;
-    String downloadUrl = await storageSnap.ref.getDownloadURL();
-    return downloadUrl;
-  }
-
-  handleSubmit() async {
-    setState(() {
-      isUploading = true;
-    });
-   await compressFile(_image);
-
-    String mediaUrl = await uploadImage(_image);
-    usersRef.doc(_controller.user.id).update({
-      "photoUrl":  mediaUrl,
-    });
-    setState(() {
-      _image=File("");
-      isUploading = false;
-      postId = Uuid().v4();
-
-    });
-  }
   @override
   Widget build(BuildContext context) {
     return Background(
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
+
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -149,19 +108,14 @@ setState(() {_image=result;});
                   _controller.userController.value.photoUrl,
                   isEdit: true,
                   onClicked: () async {
-                    selectImage(context);
-                    await handleSubmit();
-
+                    getImagegallery();
+                  _controller.uploadProfilePicture(_image);
                   },
 
                 ),
 
               ),
-              RoundedButton(
-              text: "photo save",
-    press: () async {
-      isUploading ? null : () => handleSubmit();
-    }),
+
               const SizedBox(height: 24),
               Obx(
                     () => RoundedInputField(
@@ -221,9 +175,10 @@ setState(() {_image=result;});
                   var userId = _controller.idController;
                   print("HGKJGVUUKHJHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH: $userId");
                   print("name : $NewName , phone : $NewPhone , adresse : $NewAdress ville : $NewVille ");
-                  var res = _controller.updateUser(userId,NewName,NewPhone,NewVille,NewAdress);
+                   _controller.updateUser(userId,NewName,NewPhone,NewVille,NewAdress);
                   print("********************************************************");
-                  print(res);
+
+                  Get.toNamed('/profilUser');
                  /* if(res["status"]){
                   AwesomeDialog(
                   context: context,

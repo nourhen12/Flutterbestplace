@@ -1,11 +1,18 @@
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterbestplace/constants.dart';
+//google maps :
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+//geolocator :
+import 'package:geolocator/geolocator.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:flutterbestplace/components/numbers_widget.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:get/get.dart';
-import 'package:flutterbestplace/Controllers/user_controller.dart';
 import 'package:flutterbestplace/models/user.dart';
-import 'package:flutterbestplace/constants.dart';
+import '../../Controllers/auth_service.dart';
+import 'package:flutterbestplace/Controllers/user_controller.dart';
+import 'package:flutterbestplace/Controllers/maps_controller.dart';
+import 'package:flutterbestplace/Controllers/postes_controller.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -14,13 +21,42 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _isOpen = false;
+  String postOrientation = "grid";
+  CameraPosition _kGooglePlex;
+  final _completer = Completer();
+  Position cp;
+  Set<Marker> markers = {};
+
   PanelController _panelController = PanelController();
+  AuthService _controller = Get.put(AuthService());
+  PostsController controllerPosts = PostsController();
+  MarkerController controllerMarker = MarkerController();
 
-  UserController _controller = Get.put(UserController());
+  Future<Position> getLateAndLate() async {
+   /* Data data = await controllerMarker.MarkerById(
+        _controller.userController.value.marker[0]);
+    print("*****************************");
+    var latitude = data.payload['latitude'];
+    var longitude = data.payload['longitude'];
+    print(latitude);
+    print(longitude);*/
+    _kGooglePlex = CameraPosition(
+      target: LatLng(36.87044600097282, 10.312512795556627),
+      zoom: 14.4746,
+    );
+    var add = markers.add(
+        Marker(markerId: MarkerId("1"), position: LatLng(36.87044600097282, 10.312512795556627)));
+    setState(() {});
+  }
 
-  /// **********************************************
-  /// LIFE CYCLE METHODS
-  /// **********************************************
+  @override
+  void initState() {
+    super.initState();
+    getLateAndLate();
+     controllerPosts.getProfilePosts(_controller.idController);
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,8 +70,8 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(
-                        "https://bestpkace-api.herokuapp.com/uploadsavatar1/${_controller.userController.value.photoUrl}"),
+                    image:  _controller.userController.value.photoUrl==null ? AssetImage("assets/images/profil_defaut.jpg"):NetworkImage(_controller.userController.value.photoUrl),
+
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -49,8 +85,6 @@ class _ProfilePageState extends State<ProfilePage> {
               color: Colors.white,
             ),
           ),
-
-          /// Sliding Panel
           SlidingUpPanel(
             controller: _panelController,
             borderRadius: BorderRadius.only(
@@ -87,30 +121,21 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// **********************************************
   /// WIDGETS
-  /// **********************************************
-  Widget IconTap() => Container(
-        color: Colors.black,
-        padding: EdgeInsets.symmetric(horizontal: 50.0, vertical: 15.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.image, color: kPrimaryColor, size: 30.0),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.info, color: kPrimaryColor, size: 30.0),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.map, color: kPrimaryColor, size: 30.0),
-            )
-          ],
+
+  Widget buildCircle({
+    Widget child,
+    double all,
+    Color color,
+  }) =>
+      ClipOval(
+        child: Container(
+          padding: EdgeInsets.all(all),
+          color: color,
+          child: child,
         ),
       );
+
   Widget buildName(CUser user) => Column(children: [
         Text(
           user.fullname,
@@ -122,8 +147,9 @@ class _ProfilePageState extends State<ProfilePage> {
           style: TextStyle(color: Colors.grey),
         ),
       ]);
+
   Widget buildRating() => RatingBar.builder(
-        initialRating: 2.5,
+        initialRating: 3,
         minRating: 1,
         direction: Axis.horizontal,
         allowHalfRating: true,
@@ -157,8 +183,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 Obx(
                   () => _titleSection(_controller.userController.value),
                 ),
+
                 Center(child: buildRating()),
-                Obx(
+    /* Obx(
                   () => NumbersWidget(
                     Following: _controller.userController.value.following,
                     Followers: _controller.userController.value.followers,
@@ -166,34 +193,125 @@ class _ProfilePageState extends State<ProfilePage> {
                     idCurret: _controller.idController,
                     iduser: "61b6821a8a3ffd0023dc6323",
                   ),
-                ),
+                ),*/
                 // _actionSection(hPadding: hPadding),
               ],
             ),
           ),
           IconTap(),
-          GridView.builder(
-            primary: false,
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            itemCount: _controller.imageList.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 16,
-            ),
-            itemBuilder: (BuildContext context, int index) => Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(_controller.imageList[index]),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
+          buildProfilePosts(),
         ],
       ),
     );
   }
+
+//
+  buildProfilePosts() {
+     if (controllerPosts.posts==null) {
+      return Center(
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/profil_defaut.jpg"),
+
+            ),
+          ),
+        ),
+      );
+      /*Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/nopost.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 30.0),
+              child: Text(
+                "No Posts",
+                style: TextStyle(
+                  color: Colors.pink[50],
+                  fontSize: 30.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );*/
+    } else if (postOrientation == "grid") {
+
+      return GridView.builder(
+        primary: false,
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        itemCount: controllerPosts.posts.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 1,
+          mainAxisSpacing: 1,
+        ),
+        itemBuilder: (BuildContext context, int index) => Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image:NetworkImage(controllerPosts.posts[index].mediaUrl),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      );
+    } else if (postOrientation == "map") {
+      return Column(
+        children: [
+          _kGooglePlex == null
+              ? CircularProgressIndicator()
+              : Container(
+                  child: GoogleMap(
+                    markers: markers,
+                    mapType: MapType.normal,
+                    initialCameraPosition: _kGooglePlex,
+                    onMapCreated: (controller) {
+                      _completer.complete(controller);
+                    },
+                  ),
+                  height: 500,
+                ),
+        ],
+      );
+    }
+  }
+
+//IconTap
+  Widget IconTap() => Container(
+        color: kPrimaryLightColor,
+        padding: EdgeInsets.symmetric(horizontal: 50.0, vertical: 15.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  postOrientation = "grid";
+                });
+              },
+              icon: Icon(Icons.image, color: kPrimaryColor, size: 30.0),
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  postOrientation = "map";
+                });
+              },
+              icon: Icon(Icons.map, color: kPrimaryColor, size: 30.0),
+            )
+          ],
+        ),
+      );
 
   /// Action Section
   Row _actionSection({double hPadding}) {
@@ -266,6 +384,7 @@ class _ProfilePageState extends State<ProfilePage> {
             fontSize: 30,
           ),
         ),
+        buildEditIcon(kPrimaryColor),
         SizedBox(
           height: 8,
         ),
@@ -287,4 +406,27 @@ class _ProfilePageState extends State<ProfilePage> {
       ],
     );
   }
+
+  Widget buildEditIcon(Color color) => buildCircle(
+        color: Colors.white,
+        all: 3,
+        child: buildCircle(
+          color: color,
+          all: 5,
+          child: IconButton(
+            onPressed: () {
+              Get.toNamed('/editprofil');
+            },
+            icon: Icon(
+              Icons.edit,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+        ),
+      );
+}
+
+class Completer {
+  void complete(GoogleMapController controller) {}
 }

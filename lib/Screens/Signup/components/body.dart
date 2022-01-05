@@ -14,7 +14,6 @@ import 'package:flutterbestplace/components/rounded_password_field.dart';
 import 'package:flutterbestplace/components/Dropdown_widget.dart';
 import 'package:flutterbestplace/Controllers/user_controller.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:flutterbestplace/home.dart';
 import 'package:flutterbestplace/models/Data.dart';
 import 'package:flutterbestplace/models/user.dart';
 
@@ -116,11 +115,7 @@ class Body extends StatelessWidget {
                 HintText: Text("Your Role"),
                 Items: <String>['User', 'Place'],
                 onChanged: (value) {
-                  if (value == 'User') {
-                    role = 'USER';
-                  } else if (value == 'Place') {
-                    role = 'PLACE';
-                  }
+                    role = value;
                 },
                 valueSelect: role,
                 validate: (value) {
@@ -140,7 +135,7 @@ class Body extends StatelessWidget {
       var Errormessage = await _controller.createUser(name,mail, psw,role);
       print("Erormessage $Errormessage");
       if (Errormessage== null){
-        Get.toNamed('/login');
+        Get.toNamed('/home');
       }else{
         AwesomeDialog(
             context: context,
@@ -186,7 +181,7 @@ class Body extends StatelessWidget {
                     press: () async {
                       await _controller.linkGoogleAndTwitter();
                       _controller.userController.value.role="User";
-                      Get.toNamed('/profilUser');
+                      Get.toNamed('/home');
 
                     },
                   ),

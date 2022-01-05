@@ -21,14 +21,3 @@ class AccuielScreen extends StatelessWidget {
   }
 }
 
-Future<CUser> getUser() async {
-  final response =
-      await http.get(Uri.parse('https://bestpkace-api.herokuapp.com/users'));
-  print(jsonDecode(response.body));
-
-  /* if (response.statusCode == 200) {
-    return User.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Failed to load user');
-  }*/
-}

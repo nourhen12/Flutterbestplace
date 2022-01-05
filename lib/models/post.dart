@@ -1,31 +1,49 @@
-class Post {
-  String id;
-  String body;
-  String Iduser;
-  String img;
-  String date;
+import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+
+class Post  {
+  final String postId;
+  final String ownerId;
+  final String username;
+  final String location;
+  final String description;
+  final String mediaUrl;
+  final dynamic likes;
 
   Post({
-    this.id,
-    this.body,
-    this.Iduser,
-    this.img,
-    this.date,
+    this.postId,
+    this.ownerId,
+    this.username,
+    this.location,
+    this.description,
+    this.mediaUrl,
+    this.likes,
   });
-  factory Post.fromJson(Map<String, dynamic> json) {
+
+  factory Post.fromDocument(DocumentSnapshot doc) {
     return Post(
-      id: json['_id'],
-      body: json['body'],
-      Iduser: json['user'],
-      img: json['img'],
-      date: json['date'],
+      postId: doc['postId'],
+      ownerId: doc['ownerId'],
+      username: doc['username'],
+      location: doc['location'],
+      description: doc['description'],
+      mediaUrl: doc['mediaUrl'],
+      likes: doc['likes'],
     );
   }
-  Map<String, dynamic> toJson() => {
-        '_id': id,
-        'body': body,
-        'user': Iduser,
-        'img': img,
-        'date': date,
-      };
+
+  Post.fromJson(Map<String, Object> json)
+      : this(
+    postId: json['postId'] as String,
+    username: json['username'] as String,
+    ownerId: json['ownerId'] as String,
+    location: json['location'] as String,
+    description: json['description'] as String,
+    mediaUrl: json['mediaUrl'] as String,
+    likes: json['likes'],
+
+  );
+
+
 }
