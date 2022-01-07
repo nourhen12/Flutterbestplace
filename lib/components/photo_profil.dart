@@ -62,7 +62,7 @@ class PhotoProfile extends StatelessWidget {
             icon: Icon( isEdit ? Icons.add_a_photo : Icons.edit,
                 color: Colors.white,
                 size: 20),
-            size: 20
+           
           )
          /* IconButton(
             isEdit ? Icons.add_a_photo : Icons.edit,
