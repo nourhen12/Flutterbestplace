@@ -51,26 +51,26 @@ class PhotoProfile extends StatelessWidget {
   }
 
   Widget buildEditIcon(Color color) => buildCircle(
-        color: Colors.white,
-        all: 3,
-        child: buildCircle(
-          color: color,
-          all: 8,
-          child:
-          IconButton(
-            onPressed: onClicked,
-            icon: Icon( isEdit ? Icons.add_a_photo : Icons.edit,
-                color: Colors.white,
-                size: 20),
-          )
-         /* IconButton(
+    color: Colors.white,
+    all: 3,
+    child: buildCircle(
+        color: color,
+        all: 8,
+        child:
+        IconButton(
+          onPressed: onClicked,
+          icon: Icon( isEdit ? Icons.add_a_photo : Icons.edit,
+              color: Colors.white,
+              size: 20),
+        )
+      /* IconButton(
             isEdit ? Icons.add_a_photo : Icons.edit,
             color: Colors.white,
             size: 20,
             onPressed: ,
           ),*/
-        ),
-      );
+    ),
+  );
 
   Widget buildCircle({
     Widget child,

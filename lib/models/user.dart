@@ -1,7 +1,7 @@
 import 'dart:core';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutterbestplace/models/post.dart';
+
 
 
 class CUser {
@@ -17,7 +17,6 @@ class CUser {
   String photoUrl;
   List followers;
   List following;
-  List<Post> posts;
   CUser(
       {this.id,
       this.fullname,
@@ -31,7 +30,7 @@ class CUser {
       this.photoUrl,//="assets/images/profil_defaut.jpg"
       this.followers,
       this.following,
-      this.posts});
+      });
   factory CUser.fromJson(Map<String, dynamic> json) {
     return CUser(
       id: json['id'],
@@ -45,11 +44,11 @@ class CUser {
       photoUrl: json['photoUrl'],
       followers: json['followers'],
       following: json['following'],
-      posts: json['posts'],
+
     );
   }
   factory CUser.fromDocument(DocumentSnapshot doc){
-    return CUser(id: doc['id'],fullname: doc['username'], email: doc['email'],  phone: doc['phone'],ville: doc['ville'],adresse: doc['adresse'], photoUrl: doc['photoUrl'], followers: doc['followers'],following: doc['following'],displayName: doc['displayName'],posts: doc['posts'],role: doc['role']);
+    return CUser(id: doc['id'],fullname: doc['username'], email: doc['email'],  phone: doc['phone'],ville: doc['ville'],adresse: doc['adresse'], photoUrl: doc['photoUrl'], followers: doc['followers'],following: doc['following'],displayName: doc['displayName'],role: doc['role']);
   }
   CUser.fromDocumentSnapshot({DocumentSnapshot documentSnapshot}) {
     id = documentSnapshot.id;
@@ -63,7 +62,6 @@ class CUser {
     photoUrl= documentSnapshot['photoUrl'];
     followers= documentSnapshot['followers'];
     following= documentSnapshot['following'];
-    posts=documentSnapshot['posts'];
   }
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -77,7 +75,6 @@ class CUser {
         'photoUrl': photoUrl,
         'followers': followers,
         'following': following,
-        'posts': posts,
       };
 
 }

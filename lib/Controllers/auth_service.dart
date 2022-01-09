@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutterbestplace/Controllers/db_service.dart';
-import 'package:flutterbestplace/Controllers/postes_controller.dart';
 import 'package:flutterbestplace/Screens/Signup/components/body.dart';
 import 'package:flutterbestplace/models/user.dart';
 import 'package:get/get.dart';
@@ -34,6 +33,7 @@ class AuthService extends GetxController {
           email: _authResult.user.email,
           role: role);
       if (await DBService().createNewUser(_user)) {
+        idController=_authResult.user.uid;
         userController.value=_user;
         return null;
       }
@@ -132,14 +132,10 @@ class AuthService extends GetxController {
   }
   void signOut() async {
     try {
-      print("11111111111111111111111111111 $isgoogleGmail");
-      if(isgoogleGmail){
+
         await googleSignIn.signOut();
-        isgoogleGmail=false;
-      }else{
       await _auth.signOut();
-    }
-      print("2222222222222222222222222222222 $isgoogleGmail");
+
       //userController.value = CUser();
     } catch (e) {
       /* Get.snackbar(
@@ -150,19 +146,44 @@ class AuthService extends GetxController {
     }
   }
 
-  Future<void> updateUser(String id, String name, String phone, String ville,
-      String adresse) async {
+  Future<void> updateUser(String id, String name, String phone,String adresse) async {
 
     usersRef.doc(id).update({
       'fullname': name,
       'phone': phone,
-      'ville': ville,
       'adresse': adresse,
     }).then((value) => "SUCCESS")
         .catchError((error) => print("Failed to update user: $error"));
 
       userController.value = await DBService().getUser(id);
-      print("*************************User: " + userController.value.role);
 
   }
+  Future<void> createPlace(String id,String phone,String adresse) async {
+
+    usersRef.doc(id).update({
+      'phone': phone,
+      'adresse': adresse,
+    }).then((value) => "SUCCESS")
+        .catchError((error) => print("Failed to update user: $error"));
+
+   var userplace= await DBService().getUser(id);
+   print("+++++++++++++++++++++++++++++++++++++++$userplace");
+
+  }
+  Future<void> updateRole(String id, String role) async {
+
+    usersRef.doc(id).update({
+      'role': role,
+
+    }).then((value) => "SUCCESS")
+        .catchError((error) => print("Failed to update user: $error"));
+
+    userController.value = await DBService().getUser(id);
+    print("*************************User: " + userController.value.role);
+
+  }
+
+
+
+
 }

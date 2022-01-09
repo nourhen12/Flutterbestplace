@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutterbestplace/Screens/post.dart';
+import 'package:flutterbestplace/components/progress.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterbestplace/constants.dart';
@@ -12,7 +16,6 @@ import 'package:flutterbestplace/models/user.dart';
 import '../../Controllers/auth_service.dart';
 import 'package:flutterbestplace/Controllers/user_controller.dart';
 import 'package:flutterbestplace/Controllers/maps_controller.dart';
-import 'package:flutterbestplace/Controllers/postes_controller.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -20,40 +23,47 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool isLoading = false;
   bool _isOpen = false;
   String postOrientation = "grid";
   CameraPosition _kGooglePlex;
-  final _completer = Completer();
+  var _competer = Completer();
   Position cp;
   Set<Marker> markers = {};
-
+  Post postsScreen = Post();
+  int postCount = 0;
+  List<Post> posts = [];
+  bool isFollowing = false;
+  int followerCount = 0;
+  int followingCount = 0;
+  double zoomMaps = 15.0;
   PanelController _panelController = PanelController();
   AuthService _controller = Get.put(AuthService());
-  PostsController controllerPosts = PostsController();
   MarkerController controllerMarker = MarkerController();
 
-  Future<Position> getLateAndLate() async {
-   /* Data data = await controllerMarker.MarkerById(
-        _controller.userController.value.marker[0]);
-    print("*****************************");
-    var latitude = data.payload['latitude'];
-    var longitude = data.payload['longitude'];
+  Future<Position> getMarker() async {
+
+
+    var markerData= await controllerMarker.MarkerById(_controller.idController);
+    print("***************Map Marker**************");
+    var latitude = markerData.latitude;
+    var longitude = markerData.longitude;
     print(latitude);
-    print(longitude);*/
+    print(longitude);
     _kGooglePlex = CameraPosition(
-      target: LatLng(36.87044600097282, 10.312512795556627),
-      zoom: 14.4746,
+      target: LatLng(latitude, longitude),
+      zoom: zoomMaps,
     );
     var add = markers.add(
-        Marker(markerId: MarkerId("1"), position: LatLng(36.87044600097282, 10.312512795556627)));
+        Marker(markerId: MarkerId(markerData.id), position: LatLng(latitude, longitude)));
     setState(() {});
   }
 
   @override
   void initState() {
+   // controllerMarker.MarkerAll();
     super.initState();
-    getLateAndLate();
-     controllerPosts.getProfilePosts(_controller.idController);
+    getMarker();
 
   }
 
@@ -205,67 +215,58 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-//
-  buildProfilePosts() {
-     if (controllerPosts.posts==null) {
-      return Center(
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/profil_defaut.jpg"),
-
-            ),
-          ),
-        ),
-      );
-      /*Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/nopost.jpg'),
-                  fit: BoxFit.cover,
-                ),
+buildProfilePosts() {
+  if (isLoading) {
+    return circularProgress();
+  } else if (posts == null) {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/nopost.jpg'),
+                fit: BoxFit.cover,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 30.0),
-              child: Text(
-                "No Posts",
-                style: TextStyle(
-                  color: Colors.pink[50],
-                  fontSize: 30.0,
-                  fontWeight: FontWeight.bold,
-                ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 30.0),
+            child: Text(
+              "No Posts",
+              style: TextStyle(
+                color: Colors.pink[50],
+                fontSize: 30.0,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ],
-        ),
-      );*/
-    } else if (postOrientation == "grid") {
-
-      return GridView.builder(
-        primary: false,
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        itemCount: controllerPosts.posts.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 1,
-          mainAxisSpacing: 1,
-        ),
-        itemBuilder: (BuildContext context, int index) => Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image:NetworkImage(controllerPosts.posts[index].mediaUrl),
-              fit: BoxFit.cover,
+          ),
+        ],
+      ),
+    );
+  } else if (postOrientation == "grid") {
+    return GridView.builder(
+      primary: false,
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      itemCount: posts.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 1,
+        mainAxisSpacing: 1,
+      ),
+      itemBuilder: (BuildContext context, int index) =>
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(posts[index].mediaUrl),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-        ),
-      );
-    } else if (postOrientation == "map") {
+    );
+  } else if (postOrientation == "map") {
       return Column(
         children: [
           _kGooglePlex == null
@@ -276,11 +277,27 @@ class _ProfilePageState extends State<ProfilePage> {
                     mapType: MapType.normal,
                     initialCameraPosition: _kGooglePlex,
                     onMapCreated: (controller) {
-                      _completer.complete(controller);
+                      _competer.complete(controller);
                     },
                   ),
                   height: 500,
                 ),
+          ElevatedButton(
+            child: Text(
+              "update",
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () async {
+              zoomMaps=zoomMaps+2;
+            },
+            style: ElevatedButton.styleFrom(
+                primary: kPrimaryColor,
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                textStyle: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w100)),
+          ),
         ],
       );
     }
@@ -412,7 +429,7 @@ class _ProfilePageState extends State<ProfilePage> {
         all: 3,
         child: buildCircle(
           color: color,
-          all: 5,
+          all: 3,
           child: IconButton(
             onPressed: () {
               Get.toNamed('/editprofil');
@@ -427,6 +444,3 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 }
 
-class Completer {
-  void complete(GoogleMapController controller) {}
-}

@@ -2,6 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutterbestplace/Screens/header.dart';
+import 'package:flutterbestplace/components/Dropdown_widget.dart';
+import 'package:get/get.dart';
+
+import '../Controllers/auth_service.dart';
+import 'Signup/components/body.dart';
 
 class CreateAccount extends StatefulWidget {
   @override
@@ -12,7 +17,10 @@ class _CreateAccountState extends State<CreateAccount> {
   final _scaffoldkey=GlobalKey<ScaffoldState>();
   final _formKey=GlobalKey<FormState>();
   String username="" ;
-  submit(){
+  AuthService _controller = Get.put(AuthService());
+
+  var role;
+  submit() async{
     final form=_formKey.currentState;
 
     if (form.validate()){
@@ -22,6 +30,8 @@ class _CreateAccountState extends State<CreateAccount> {
       Timer(Duration(seconds: 2),(){
         Navigator.pop(context,username);
       });
+      await _controller.updateRole(_controller.idController,role);
+      Get.toNamed('/home');
     }
   }
   @override
@@ -43,30 +53,26 @@ class _CreateAccountState extends State<CreateAccount> {
                 child: Container(
                   child:Form(
                     key:_formKey,
-                    child: TextFormField(
-                      validator: (val){
-                        if (val.trim().length<3 || val.isEmpty){
-                          return "Username too short";
-                        }else if (val.trim().length>12){
-                          return "Username too long";
-                        }
-                        else{
-                         return null;
+                    child:  DropdownWidget(
+                      HintText: Text("Your Role"),
+                      Items: <String>['User', 'Place'],
+                      onChanged: (value) {
+                        role = value;
+                      },
+                      valueSelect: role,
+                      validate: (value) {
+                        if (value == null) {
+                          return 'Choose your Role';
+                        } else {
+                          return null;
                         }
                       },
-                      onSaved: (val)=>username=val,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "username",
-                        labelStyle: TextStyle(fontSize:15.0),
-                        hintText: "must be at least 3 character"
-                      ),
                     ),
                   )
                 ),
               ),
               GestureDetector(
-                onTap: submit,
+                onTap:  submit,
                 child: Container(
                   height:50.0,
                   width: 350.0,

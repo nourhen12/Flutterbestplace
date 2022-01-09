@@ -12,12 +12,12 @@ import 'package:flutterbestplace/Screens/Welcome/welcome_screen.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutterbestplace/models/user.dart';
-//import 'package:flutterbestplace/Screens/profile.dart';
 import 'package:flutterbestplace/Screens/search.dart';
 import 'package:flutterbestplace/Screens/timeline.dart';
 import 'package:flutterbestplace/Screens/upload.dart';
 
 import 'Profil_Place/profil_place.dart';
+import 'create_account.dart';
 
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -84,10 +84,10 @@ class _HomeState extends State<Home> {
             onPressed:  ()async {
               await AuthService().signOut();}
           ),
-          //ActivityFeed(),
+          CreateAccount(),
           Upload(currentUser:_controller.user),
           Search(),
-          _controller.userController.value.role=="Place"?ProfilPlace():ProfilUser(),
+          _controller.user.role=="Place"?ProfilPlace(profileId:_controller.user.id):ProfilUser(profileId:_controller.user.id),
 
         ],
         controller: pageController,

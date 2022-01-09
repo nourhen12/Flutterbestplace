@@ -53,14 +53,22 @@ class getAllMarkersState extends State<AllMarkers> {
 
   _getAllMarker() async {
     List<dynamic> liste = await controllerMarker.MarkerAll();
+    markers.forEach((marker){
+     /* markers.add(Marker(
+          markerId: MarkerId(liste[i]['_id']),
+          icon:
+          BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+          position: LatLng(liste[i]['latitude'], liste[i]['longitude'])));*/
+      print("******************** ${marker} *************************");
+    });
     print(liste);
-    for (var i = 0; i < liste.length; i++) {
+    /*for (var i = 0; i < liste.length; i++) {
       markers.add(Marker(
           markerId: MarkerId(liste[i]['_id']),
           icon:
               BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
           position: LatLng(liste[i]['latitude'], liste[i]['longitude'])));
-    }
+    }*/
   }
 
   @override
@@ -99,7 +107,7 @@ class getAllMarkersState extends State<AllMarkers> {
               style: TextStyle(color: Colors.white),
             ),
             onPressed: () async {
-              controllerMarker.UserById('61ad2d0ca7f7450023e9e2b0');
+              controllerMarker.MarkerById('61ad2d0ca7f7450023e9e2b0');
             },
             style: ElevatedButton.styleFrom(
                 primary: kPrimaryColor,

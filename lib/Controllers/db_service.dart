@@ -25,8 +25,8 @@ class DBService {
        toFirestore: (user, _) => user.toJson(),
      );
      CUser userdata = await usersRef.doc(uid).get().then((snapshot) => snapshot.data());
-print("*************************");
-print(userdata.email);
+print("***********User**************");
+print(userdata.toJson());
      return userdata;
    } catch (e) {
       print("FAILED GET USER") ;

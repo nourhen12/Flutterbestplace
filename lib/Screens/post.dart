@@ -1,18 +1,57 @@
 import 'dart:async';
+
 import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterbestplace/components/custom_image.dart';
 import 'package:flutterbestplace/models/user.dart';
 import 'package:flutterbestplace/Screens/comments.dart';
 import 'package:flutterbestplace/Screens/home.dart';
-//import 'package:flutterbestplace/Screens/custom_image.dart';
+import 'package:flutterbestplace/components/custom_image.dart';
 import 'package:flutterbestplace/components/progress.dart';
-import 'package:flutterbestplace/models/post.dart';
 
-class PostS extends StatefulWidget {
-  Post postM=Post();
+class Post extends StatefulWidget {
+  final String postId;
+  final String ownerId;
+  final String username;
+  final String location;
+  final String description;
+  final String mediaUrl;
+  final dynamic likes;
+
+  Post({
+     this.postId,
+     this.ownerId,
+     this.username,
+     this.location,
+     this.description,
+    this.mediaUrl,
+    this.likes,
+  });
+
+  factory Post.fromDocument(DocumentSnapshot doc) {
+    return Post(
+      postId: doc['postId'],
+      ownerId: doc['ownerId'],
+      username: doc['username'],
+      location: doc['location'],
+      description: doc['description'],
+      mediaUrl: doc['mediaUrl'],
+      likes: doc['likes'],
+    );
+  }
+  Post.fromJson(Map<String, Object> json)
+      : this(
+    postId: json['postId'] as String,
+    username: json['username'] as String,
+    ownerId: json['ownerId'] as String,
+    location: json['location'] as String,
+    description: json['description'] as String,
+    mediaUrl: json['mediaUrl'] as String,
+    likes: json['likes'] ,
+
+  );
+
   int getLikeCount(likes) {
     // if no likes, return 0
     if (likes == null) {
@@ -31,18 +70,18 @@ class PostS extends StatefulWidget {
   @override
   _PostState createState() =>
       _PostState(
-        postId: postM.postId,
-        ownerId: postM.ownerId,
-        username: postM.username,
-        location: postM.location,
-        description: postM.description,
-        mediaUrl: postM.mediaUrl,
-        likes: postM.likes,
-        likeCount: getLikeCount(postM.likes),
+        postId: this.postId,
+        ownerId: this.ownerId,
+        username: this.username,
+        location: this.location,
+        description: this.description,
+        mediaUrl: this.mediaUrl,
+        likes: this.likes,
+        likeCount: getLikeCount(this.likes),
       );
 }
 
-class _PostState extends State<PostS> {
+class _PostState extends State<Post> {
   final String currentUserId = currentUser.id;
   final String postId;
   final String ownerId;
@@ -56,65 +95,66 @@ class _PostState extends State<PostS> {
   Map likes;
 
   _PostState({
-    this.postId,
-    this.ownerId,
-    this.username,
-    this.location,
-    this.description,
-    this.mediaUrl,
-    this.likes,
-    this.likeCount,
+     this.postId,
+     this.ownerId,
+     this.username,
+     this.location,
+     this.description,
+     this.mediaUrl,
+     this.likes,
+     this.likeCount,
   });
 
   buildPostHeader() {
     return FutureBuilder<DocumentSnapshot>(
-      future: usersRef.doc(ownerId).get(),
-      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Text("Something went wrong");
-        }
+        future: usersRef.doc(ownerId).get(),
+        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Text("Something went wrong");
+          }
 
-        if (snapshot.hasData && !snapshot.data.exists) {
-          return Text("Document does not exist");
-        }
+          if (snapshot.hasData && !snapshot.data.exists) {
+            return Text("Document does not exist");
+          }
 
-        if (snapshot.connectionState == ConnectionState.done) {
-          Map<String, dynamic> data = snapshot.data.data() as Map<
-              String,
-              dynamic>;
-          bool isPostOwner = currentUserId == ownerId;
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(data['photoUrl']),
-              backgroundColor: Colors.grey,
-            ),
-            title: GestureDetector(
-              onTap: () => print("showing profile"),
-              //showProfile(context, profileId: data['id']),
-              child: Text(
-                data['username'],
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
+          if (snapshot.connectionState == ConnectionState.done) {
+            Map<String, dynamic> data = snapshot.data.data() as Map<
+                String,
+                dynamic>;
+            bool isPostOwner = currentUserId == ownerId;
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(data['photoUrl']),
+                backgroundColor: Colors.grey,
+              ),
+              title: GestureDetector(
+                onTap: () => print("showing profile"),
+                //showProfile(context, profileId: data['id']),
+                child: Text(
+                  data['fullname'],
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            subtitle: Text(location),
-            trailing: isPostOwner
-                ? IconButton(
-              onPressed: () => print("delete post"),
-              icon: Icon(Icons.more_vert),
-            )
-                : Text('nnnn'),
-          );
-        }
-        return Text("loading");
+              subtitle: Text(location),
+              trailing: isPostOwner
+                  ? IconButton(
+                onPressed: () => print("delete post"),
+                icon: Icon(Icons.more_vert),
+              )
+                  : Text('nnnn'),
+            );
+          }
+          return Text("loading");
 
-      },
+        },
     );
   }
   handleLikePost() {
     bool _isLiked = likes[currentUserId] == true;
+
     if (_isLiked) {
       postsRef
           .doc(ownerId)
@@ -275,7 +315,7 @@ class _PostState extends State<PostS> {
   }
 }
 showComments(BuildContext context,
-    { String postId, String ownerId,  String mediaUrl}) {
+    { String postId,  String ownerId,  String mediaUrl}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return Comments(
       postId: postId,

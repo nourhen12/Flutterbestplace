@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -34,7 +35,6 @@ class _EditProfilePageState extends State<Body> {
   AuthService _controller = Get.put(AuthService());
   var NewName = null;
   var NewPhone = null;
-  var NewVille = null;
   var NewAdress = null;
   final _formKey = GlobalKey<FormState>();
   File _image =File("");
@@ -89,9 +89,125 @@ final pickedFile = await picker.getImage(
           );
         });
   }
+  clearImage() {
+    setState(() {
+      _image = null;
+    });
+  }
+  Future<File> compressImage(File file) async {
+    // Get file path
+    // eg:- "Volume/VM/abcd.jpeg"
+    final filePath = file.absolute.path;
+
+    // Create output file path
+    // eg:- "Volume/VM/abcd_out.jpeg"
+    final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
+    final splitted = filePath.substring(0, (lastIndex));
+    final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
+
+    return  await FlutterImageCompress.compressAndGetFile(
+        filePath,
+        outPath,
+        minWidth: 1000,
+        minHeight: 1000,
+        quality: 70);
+
+  } Future<String> uploadImage(imageFile) async {
+    UploadTask uploadTask =
+    storageRef.child("post_$postId.jpg").putFile(imageFile);
+    TaskSnapshot storageSnap = await uploadTask;
+    String downloadUrl = await storageSnap.ref.getDownloadURL();
+    return downloadUrl;
+  }
+  createPostInFireStore({String mediaUrl,String location,String description}){
+    var userId = _controller.idController;
+    usersRef.doc(userId).set({
+
+      "photoUrl": mediaUrl,
+
+    });
+  }
+
+  handleSubmit() async {
+    setState(() {
+      isUploading = true;
+    });
+    //await compressImage();
+    String mediaUrl = await uploadImage(await compressImage(_image));
+    createPostInFireStore(
+      mediaUrl:mediaUrl,
+
+    );
+
+    setState(() {
+      _image=File("");
+      isUploading = false;
+      postId = Uuid().v4();
+
+    });
+  }
+
   ///NOTE: Only supported on Android & iOS
   ///Needs image_picker plugin {https://pub.dev/packages/image_picker}
+  Scaffold buildUploadForm() {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white70,
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: clearImage),
+        title: Text(
+          "Caption Post",
+          style: TextStyle(color: Colors.black),
+        ),
+        actions: [
+          FlatButton(
+            onPressed: isUploading ? null : () => handleSubmit(),
+            child: Text(
+              "Post",
+              style: TextStyle(
+                color: Colors.blueAccent,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: ListView(
+        children: <Widget>[
+          isUploading ? linearProgress() : Text(""),
+          Container(
+            height: 220.0,
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: FileImage(_image),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 10.0),
+          ),
+          ListTile(
+            leading: CircleAvatar(
+              backgroundImage:
+              CachedNetworkImageProvider(_controller.userController.value.photoUrl),
+            ),
 
+          ),
+
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Background(
@@ -109,6 +225,9 @@ final pickedFile = await picker.getImage(
                   isEdit: true,
                   onClicked: () async {
                     getImagegallery();
+                    if(_image!=null){
+                      buildUploadForm();
+                    }
                   _controller.uploadProfilePicture(_image);
                   },
 
@@ -147,16 +266,7 @@ final pickedFile = await picker.getImage(
                   },
                 ),
               ),
-              Obx(
-                    () => RoundedInputField(
-                  hintText: 'you ville',
-                  InitialValue: _controller.userController.value.ville,
-                  icon: Icons.location_city,
-                  onChanged: (value) {
-                    NewVille = value;
-                  },
-                ),
-              ),
+
               Obx(
                     () => RoundedInputField(
                   hintText: 'your adress',
@@ -174,43 +284,10 @@ final pickedFile = await picker.getImage(
                   fromdata.save();
                   var userId = _controller.idController;
                   print("HGKJGVUUKHJHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH: $userId");
-                  print("name : $NewName , phone : $NewPhone , adresse : $NewAdress ville : $NewVille ");
-                   _controller.updateUser(userId,NewName,NewPhone,NewVille,NewAdress);
-                  print("********************************************************");
-
+                  print("name : $NewName , phone : $NewPhone , adresse : $NewAdress");
+                   _controller.updateUser(userId,NewName,NewPhone,NewAdress);
                   Get.toNamed('/profilUser');
-                 /* if(res["status"]){
-                  AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.ERROR,
-                  animType: AnimType.RIGHSLIDE,
-                  headerAnimationLoop: true,
-                  title: 'Error',
-                  desc:Errormessage,
-                  btnOkOnPress: () {},
-                  btnOkIcon: Icons.cancel,
-                  btnOkColor: Colors.red)
-                  ..show();
-                  }*/
-                 // _controller.updateUser(
-                  //    userId, NewName, NewPhone, NewVille, NewAdress);
-                  /* if (data.status == 'success') {
-                    Map<String, dynamic> user = data.payload['user'];
-                    _controller.userController = User.fromJson(user).obs;
-                    Get.toNamed('/contactPlace');
-                  } else {
-                    AwesomeDialog(
-                        context: context,
-                        dialogType: DialogType.ERROR,
-                        animType: AnimType.RIGHSLIDE,
-                        headerAnimationLoop: true,
-                        title: 'Error',
-                        desc: data.message,
-                        btnOkOnPress: () {},
-                        btnOkIcon: Icons.cancel,
-                        btnOkColor: Colors.red)
-                      ..show();
-                  }*/
+
                 },
               ),
             ],

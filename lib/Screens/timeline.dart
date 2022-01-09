@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutterbestplace/models/user.dart';
 import 'package:flutterbestplace/Screens/home.dart';
 import 'package:flutterbestplace/Screens/header.dart';
-import 'package:flutterbestplace/models/post.dart';
 import 'package:flutterbestplace/components/progress.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
-import 'package:flutterbestplace/Screens/Posts/post.dart';
 //CollectionReference users = FirebaseFirestore.instance.collection('user');
 final  users =FirebaseFirestore.instance.collection('user');
 /*
@@ -61,7 +59,7 @@ class _TimelineState extends State<Timeline> {
   }
 
 }*/
-
+/*
 class Timeline extends StatefulWidget {
   final CUser currentUser;
 
@@ -72,7 +70,7 @@ class Timeline extends StatefulWidget {
 }
 
 class _TimelineState extends State<Timeline> {
-   List<PostS> posts;
+   List<Post> posts;
    List<Post> Mposts;
   @override
   void initState() {
@@ -109,6 +107,7 @@ class _TimelineState extends State<Timeline> {
     return Scaffold(
         appBar: header(context, isAppTitle: true),
         body: RefreshIndicator(
-            onRefresh: () => getTimeline(), child: buildTimeline()));
+            onRefresh: () =>  print("")//buildTimeline()));
   }
 }
+*/

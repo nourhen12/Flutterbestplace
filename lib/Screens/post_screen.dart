@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterbestplace/Screens/header.dart';
+import 'package:flutterbestplace/Screens/post.dart';
+import 'package:flutterbestplace/components/progress.dart';
 
-import 'package:flutterbestplace/Screens//home.dart';
+import 'package:flutterbestplace/Screens/home.dart';
 import 'package:flutterbestplace/Screens/header.dart';
 import 'package:flutterbestplace/Screens/post.dart';
 import 'package:flutterbestplace/components/progress.dart';
@@ -10,7 +13,7 @@ class PostScreen extends StatelessWidget {
   final String userId;
   final String postId;
 
-  PostScreen({this.userId,  this.postId});
+  PostScreen({ this.userId, this.postId});
 
   @override
   Widget build(BuildContext context) {

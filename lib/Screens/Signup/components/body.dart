@@ -115,6 +115,7 @@ class Body extends StatelessWidget {
                 HintText: Text("Your Role"),
                 Items: <String>['User', 'Place'],
                 onChanged: (value) {
+                  print("role : $value");
                     role = value;
                 },
                 valueSelect: role,
@@ -132,25 +133,31 @@ class Body extends StatelessWidget {
     var fromdata = _formKey.currentState;
     if (fromdata.validate()) {
       fromdata.save();
-      var Errormessage = await _controller.createUser(name,mail, psw,role);
-      print("Erormessage $Errormessage");
-      if (Errormessage== null){
-        Get.toNamed('/home');
-      }else{
-        AwesomeDialog(
-            context: context,
-            dialogType: DialogType.ERROR,
-            animType: AnimType.RIGHSLIDE,
-            headerAnimationLoop: true,
-            title: 'Error',
-            desc:Errormessage ,
-            btnOkOnPress: () {},
-            btnOkIcon: Icons.cancel,
-            btnOkColor: Colors.red)
-          ..show();
-      }
 
-      print(_controller.userController);
+        var Errormessage = await _controller.createUser(name,mail, psw,role);
+        print("Erormessage $Errormessage");
+        if (Errormessage== null){
+          if(role=='User'){
+          Get.toNamed('/login');
+          }else if (role=='Place'){
+            Get.toNamed('/position');
+          }
+        }else{
+          AwesomeDialog(
+              context: context,
+              dialogType: DialogType.ERROR,
+              animType: AnimType.RIGHSLIDE,
+              headerAnimationLoop: true,
+              title: 'Error',
+              desc:Errormessage ,
+              btnOkOnPress: () {},
+              btnOkIcon: Icons.cancel,
+              btnOkColor: Colors.red)
+            ..show();
+        }
+
+
+
 
     }else {
       print("notvalid");

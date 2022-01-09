@@ -123,8 +123,26 @@ TextEditingController locationController=TextEditingController();
       _image = File("");
     });
   }
+  Future<File> compressImage(File file) async {
+    // Get file path
+    // eg:- "Volume/VM/abcd.jpeg"
+    final filePath = file.absolute.path;
 
-  compressImage() async {
+    // Create output file path
+    // eg:- "Volume/VM/abcd_out.jpeg"
+    final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
+    final splitted = filePath.substring(0, (lastIndex));
+    final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
+
+    return  await FlutterImageCompress.compressAndGetFile(
+        filePath,
+        outPath,
+        minWidth: 1000,
+        minHeight: 1000,
+        quality: 70);
+
+  }
+  /*compressImage() async {
    /* final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     dynamic imageFile = Im.decodeImage(_image.readAsBytesSync());
@@ -146,7 +164,7 @@ TextEditingController locationController=TextEditingController();
     setState(() {_image=result;});
 
   }
-
+*/
   Future<String> uploadImage(imageFile) async {
     UploadTask uploadTask =
         storageRef.child("post_$postId.jpg").putFile(imageFile);
@@ -172,8 +190,8 @@ TextEditingController locationController=TextEditingController();
     setState(() {
       isUploading = true;
     });
-    await compressImage();
-    String mediaUrl = await uploadImage(_image);
+    //await compressImage();
+    String mediaUrl = await uploadImage(await compressImage(_image));
     createPostInFireStore(
       mediaUrl:mediaUrl,
       location:locationController.text,
