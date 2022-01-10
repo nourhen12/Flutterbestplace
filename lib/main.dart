@@ -16,6 +16,8 @@ import 'package:flutterbestplace/Screens/google_map/add_Marker.dart';
 import 'package:flutterbestplace/Screens/google_map/all_Markers.dart';
 import 'package:get/get.dart';
 
+import 'Screens/home.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -33,13 +35,13 @@ class MyApp extends StatelessWidget {
         primaryColor: kPrimaryColor,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: StreamBuilder(
+      home: WelcomeScreen(),/*StreamBuilder(
         stream:AuthService().onChangedUser,
         builder: (context,snapshot){
           return snapshot.data==null?WelcomeScreen():AccuielScreen();
         },
 
-      ),
+      ),*/
       getPages: [
         GetPage(name: '/signup', page: () => SignUpScreen()),
         GetPage(name: '/contactPlace', page: () => ContactPlace()),
@@ -50,6 +52,8 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/editprofil', page: () => EditProfil()),
         GetPage(name: '/profilPlace', page: () => ProfilPlace()),
         GetPage(name: '/getmaps', page: () => AllMarkers()),
+        GetPage(name: '/home', page: () => Home()),
+
       ],
       /* routes: {
         'signup': (context) => SignUpScreen(),

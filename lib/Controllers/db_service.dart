@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutterbestplace/models/user.dart';
 
@@ -6,31 +5,34 @@ class DBService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<dynamic> createNewUser(CUser user) async {
-
     try {
-      await _firestore.collection("user").doc(user.id).set(
-        user.toJson()
-      );
+      await _firestore.collection("user").doc(user.id).set(user.toJson());
+
       return true;
     } catch (e) {
       return e.message;
     }
   }
 
-  getUser(String uid) async {
-     try {
-     final userRef = FirebaseFirestore.instance.collection('user').withConverter<CUser>(
-       fromFirestore: (snapshot, _) => CUser.fromJson(snapshot.data()),
-       toFirestore: (user, _) => user.toJson(),
-     );
-     CUser userdata = await userRef.doc(uid).get().then((snapshot) => snapshot.data());
-     return userdata;
-   } catch (e) {
-      print(e.message) ;
+  Future<CUser> getUser(String uid) async {
+    try {
+      final usersRef = await FirebaseFirestore.instance
+          .collection('user')
+          .withConverter<CUser>(
+            fromFirestore: (snapshot, _) => CUser.fromJson(snapshot.data()),
+            toFirestore: (user, _) => user.toJson(),
+          );
+      CUser userdata =
+          await usersRef.doc(uid).get().then((snapshot) => snapshot.data());
+      print("***********User**************");
+      print(userdata.toJson());
+      return userdata;
+    } catch (e) {
+      print("FAILED GET USER");
+    }
   }
-   }
 
-  Future<void> addTodo(String content, String uid) async {
+/* Future<void> addTodo(String content, String uid) async {
     try {
       await _firestore
           .collection("users")
@@ -46,8 +48,7 @@ class DBService {
       rethrow;
     }
   }
-
- /* Stream<List<TodoModel>> todoStream(String uid) {
+  Stream<List<TodoModel>> todoStream(String uid) {
     return _firestore
         .collection("users")
         .document(uid)
@@ -62,7 +63,6 @@ class DBService {
       return retVal;
     });
   }
-
   Future<void> updateTodo(bool newValue, String uid, String todoId) async {
     try {
       _firestore

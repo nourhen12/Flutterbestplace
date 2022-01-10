@@ -53,7 +53,6 @@ dependencies:
   flutter_staggered_grid_view: ^0.4.1
   transparent_image: ^1.0.0
   google_maps_flutter: ^2.1.1
-  google_maps_flutter_web: ^0.3.2
   geolocator: ^7.7.1
   geolocator_web: ^2.0.6
   awesome_dialog: ^2.1.1
@@ -66,6 +65,8 @@ dependencies:
   firebase_auth: ^3.3.4
   uuid: ^3.0.5
   cached_network_image: ^3.2.0
+  timeago: ^3.1.0
+  animator: ^3.1.0
 
 dev_dependencies:
   flutter_test:

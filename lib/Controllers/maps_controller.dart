@@ -1,50 +1,54 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutterbestplace/Screens/home.dart';
 import 'dart:io';
 import 'package:flutterbestplace/models/marker.dart';
 import 'package:flutterbestplace/models/Data.dart';
 import 'package:http/http.dart' as http;
 
 class MarkerController {
-  final String url = "https://bestpkace-api.herokuapp.com/markers";
+  final markerRef = FirebaseFirestore.instance.collection('marker');
   var MController = Marker();
-  Future<Data> addMarker(idUser, lat, long) async {
-    final response = await http.post(
-      Uri.parse(url),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'latitude': lat,
-        'longitude': long,
-        'user': idUser,
-      }),
-    );
-    Map<String, dynamic> body = jsonDecode(response.body);
-    return Data.fromJson(body);
+  Future<void> addMarker(idUser, lat, long) async {
+    try {
+      await markerRef
+          .doc(idUser)
+          .set({
+            'id': idUser,
+            'latitude': lat,
+            'longitude': long,
+          })
+          .then((value) => print("Marquer Added"))
+          .catchError((error) => print("Failed to add marker: $error"));
+    } catch (e) {
+      return e.message;
+    }
   }
 
-  Future MarkerById(String id) async {
-    final response = await http.get(Uri.parse('$url/$id'));
-    Map<String, dynamic> body = jsonDecode(response.body);
-
-    if (body['status'] == 'success') {
-      print(body);
-      MController = Marker.fromJson(body['payload']);
-    } else {
-      throw Exception('Failed to load a user');
+  MarkerById(String id) async {
+    try {
+      final markerdata = await markerRef.withConverter<Marker>(
+        fromFirestore: (snapshot, _) => Marker.fromJson(snapshot.data()),
+        toFirestore: (marker, _) => marker.toJson(),
+      );
+      Marker marker =
+          await markerdata.doc(id).get().then((snapshot) => snapshot.data());
+      print(marker.toJson());
+      return marker;
+    } catch (e) {
+      print("FAILED GET MARKER");
     }
   }
 
   Future MarkerAll() async {
-    final response = await http.get(Uri.parse(url));
-    Map<String, dynamic> body = jsonDecode(response.body);
-
-    if (body['status'] == 'success') {
-      List<dynamic> liste = body['payload'];
-      return liste;
-    } else {
-      throw Exception('Failed to register user.');
-    }
+    QuerySnapshot querySnapshot = await markerRef.get();
+    List<QueryDocumentSnapshot> Documents = querySnapshot.docs;
+    List<Marker> markers;
+    Documents.forEach((element) {
+      markers.add(Marker.fromJson(element.data()));
+    });
+    print("7777777777777777777777777777777");
+    print(markers[0].toJson());
   }
 }
