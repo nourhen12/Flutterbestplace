@@ -260,24 +260,9 @@ class _ProfilePageState extends State<Body> {
               Obx(
                 () => PhotoProfile(
                   imagePath: _controller.userController.value.photoUrl,
-                  onClicked: () async {
-                    await Get.toNamed('/editprofil');
-                  },
-                ),
-              ),
-              ConstrainedBox(
-                constraints: BoxConstraints.tightFor(width: 70, height: 70),
-                child: ElevatedButton(
-                  child: Text(
-                    'edit',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  onPressed: () {
+                  onClicked: () {
                     Get.toNamed('/editprofil');
                   },
-                  style: ElevatedButton.styleFrom(
-                    shape: CircleBorder(),
-                  ),
                 ),
               ),
               const SizedBox(height: 24),

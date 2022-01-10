@@ -34,13 +34,13 @@ class PhotoProfile extends StatelessWidget {
   }
 
   Widget buildImage() {
-
-
     return ClipOval(
       child: Material(
         color: Colors.transparent,
         child: Ink.image(
-          image:  imagePath ==null ? AssetImage("assets/images/profil_defaut.jpg"):CachedNetworkImageProvider(imagePath) ,
+          image: imagePath == null
+              ? AssetImage("assets/images/profil_defaut.jpg")
+              : CachedNetworkImageProvider(imagePath),
           fit: BoxFit.cover,
           width: 128,
           height: 128,
@@ -51,43 +51,24 @@ class PhotoProfile extends StatelessWidget {
   }
 
   Widget buildEditIcon(Color color) => buildCircle(
-<<<<<<< HEAD
         color: Colors.white,
         all: 3,
         child: buildCircle(
-          color: color,
-          all: 8,
-          child:
-          IconButton(
-            onPressed: onClicked,
-            icon: Icon( isEdit ? Icons.add_a_photo : Icons.edit,
-                color: Colors.white,
-                size: 20),
-           
-          )
-         /* IconButton(
-=======
-    color: Colors.white,
-    all: 3,
-    child: buildCircle(
-        color: color,
-        all: 8,
-        child:
-        IconButton(
-          onPressed: onClicked,
-          icon: Icon( isEdit ? Icons.add_a_photo : Icons.edit,
-              color: Colors.white,
-              size: 20),
-        )
-      /* IconButton(
->>>>>>> 7723192dba494e0bf79c9d204049b875988e5521
+            color: color,
+            all: 8,
+            child: IconButton(
+              onPressed: onClicked,
+              icon: Icon(isEdit ? Icons.add_a_photo : Icons.edit,
+                  color: Colors.white, size: 20),
+            )
+            /* IconButton(
             isEdit ? Icons.add_a_photo : Icons.edit,
             color: Colors.white,
             size: 20,
             onPressed: ,
           ),*/
-    ),
-  );
+            ),
+      );
 
   Widget buildCircle({
     Widget child,
